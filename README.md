@@ -149,3 +149,8 @@ AI 행동이
 This repository is intended to support the development of an open AI behavioral trust infrastructure.
 
 More details will be provided as the project evolves.
+
+
+# Architecture Diagram
+See [Architecture Overview](docs/architecture_diagram.md)
+
