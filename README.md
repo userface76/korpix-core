@@ -151,6 +151,70 @@ This repository is intended to support the development of an open AI behavioral 
 More details will be provided as the project evolves.
 
 
-# Architecture Diagram
+## Architecture Diagram
 See [Architecture Overview](docs/architecture_diagram.md)
+
+
+# KorPIX Core
+
+**AI 행동 신뢰 인프라 (AI Behavior Trust Infrastructure)**
+
+KorPIX는 자율 행동형 AI(Agentic AI)가 실제 경제 활동을 수행할 때
+그 행동을 안전하게 실행·통제·감사하는 표준 인프라입니다.
+
+## 핵심 3대 시스템
+
+| 시스템 | 역할 |
+|---|---|
+| **Trust Terminal** | AI 행동 실행 환경 보호 (TPM + TEE) |
+| **Policy Engine** | 실행 전 위험도 검증 및 승인 결정 |
+| **Audit Network** | 불변 감사 기록 (해시 체인 + 디지털 서명) |
+
+## 파일럿 유스케이스
+
+- **UC-001** 소액 정기결제 자동화
+- **UC-002** AI 투자 자동화
+- **UC-003** 기업 구매 승인 자동화
+- **UC-004** AI 행정 서비스 자동화
+- **UC-005** AI Node PC 하드웨어 Trust Terminal
+
+## 표준 명세
+
+`standards/` 폴더의 TypeScript 타입 정의가
+KorPIX의 공통 인터페이스입니다.
+모든 파트너는 이 구조를 기반으로 연동합니다.
+
+## 관련 문서
+
+- [KorPIX Architecture Whitepaper](docs/)
+- [아키텍처 백서 (Korean)](docs/)
+```
+
+커밋 메시지: `docs: README 프로젝트 소개 작성`
+
+---
+
+## 5단계 — 완성 확인
+
+레포 주소가 이렇게 만들어져 있으면 완성이에요.
+```
+github.com/[사용자명]/korpix-core
+├── README.md          ✅
+├── standards/
+│   ├── action-record.ts   ✅
+│   └── policy-engine.ts   ✅
+```
+
+---
+
+## 이게 왜 중요한가
+
+지금 만든 `action-record.ts` 파일 하나가 앞으로 이렇게 쓰여요.
+```
+파트너사 개발자에게: "이 파일 보세요. 연동은 이 구조 기준입니다."
+
+투자자에게: "github.com/korpix-team/korpix-core — 여기 올라가 있어요."
+
+정부 담당자에게: "표준 명세 초안이 공개 레포에 있습니다."
+
 
