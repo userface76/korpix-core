@@ -1,0 +1,449 @@
+KorPIX
+파일럿 프로젝트 유스케이스
+AI Node PC 하드웨어 Trust Terminal 전환
+Pilot Use Case UC-005
+Version 0.1  ·  2026년 초안  ·  UC-001~004 파일럿 완료 후 진행
+Software Emulator  →  Hardware Trusted Execution Environment
+ 
+1. 유스케이스 개요
+
+UC ID	UC-005 · AI Node PC 하드웨어 Trust Terminal 전환 파일럿
+전제 조건	UC-001~004 파일럿 4종 KPI 달성 완료
+분류	소프트웨어 에뮬레이터 → 전용 하드웨어(TPM+NPU+PQC) Trust Terminal 전환
+목적	KorPIX 아키텍처의 소프트 구현을 실제 물리 단말(AI Node PC)에 이식·검증
+파일럿 기간	16주 (4개월) · EVT → DVT → PVT 3단계 하드웨어 개발 주기
+참여 규모	HW 파트너 1개사 · 내부 개발팀 · UC-001~004 검증팀 (KPI 재비교)
+핵심 HW 요소	TPM 2.0 · NPU (온디바이스 AI) · PQC 하드웨어 가속 · Secure Boot · TEE
+목표 인증	CC EAL4+ 인증 준비 · FIPS 140-3 암호 모듈 인증 준비
+
+UC-001~004에서 소프트웨어로 검증된 KorPIX의 세 핵심 시스템(Trust Terminal · Policy Engine · Audit Network)을 이제 실제 물리 하드웨어에 이식합니다. 이것이 사업계획서에서 제안한 '개인화된 AI Node PC'의 첫 번째 실물 구현 단계입니다.
+소프트웨어 에뮬레이터는 기능은 동일하지만 하드웨어 수준의 물리 보안(키 탈취 불가·부팅 무결성·변조 감지)을 제공하지 못합니다. UC-005는 이 gap을 메우는 전환 파일럿입니다. 소프트웨어 구현체와 하드웨어 구현체의 KPI를 직접 비교해 성능·보안·전력 효율 세 축에서 하드웨어 우위를 수치로 증명하는 것이 최종 목표입니다.
+
+UC-005는 기능 검증이 아닌 '하드웨어 전환 검증'입니다. 모든 기능은 UC-001~004에서 이미 검증됐습니다. 이번에는 동일한 기능이 실제 물리 단말에서 더 안전하고, 더 빠르고, 더 낮은 전력으로 동작함을 증명합니다.
+
+
+2. 소프트웨어 에뮬레이터 vs 하드웨어 Trust Terminal
+
+아래 표는 UC-001~004에서 사용한 소프트웨어 구현과 UC-005 하드웨어 구현의 핵심 차이를 보여줍니다. 각 행은 KorPIX 아키텍처의 중요 요소가 하드웨어 전환 시 어떻게 강화되는지를 나타냅니다.
+
+구분	소프트웨어 에뮬레이터 (UC-001~004)	하드웨어 Trust Terminal (UC-005)
+실행 환경	OS 프로세스 / Docker 컨테이너	전용 하드웨어 + TEE (Trusted Execution Environment)
+보안 칩	소프트웨어 시뮬레이션	TPM 2.0 물리 칩 탑재 (펌웨어 레벨 격리)
+암호 연산	소프트웨어 PQC 라이브러리	TPM 하드웨어 가속 + NPU PQC 오프로딩
+키 보관	OS 키스토어 (탈취 가능)	TPM Sealed Storage (물리 접근 시 자동 삭제)
+부팅 신뢰	OS 수준 검증만	Secure Boot → Measured Boot → Remote Attestation
+AI 실행	범용 CPU 소프트 실행	NPU 전용 추론 엔진 (온디바이스 격리 실행)
+감사 기록	파일 시스템 로그	TPM PCR 기반 변조 불가 하드웨어 로그
+물리 공격 방어	없음	Tamper-evident 하우징 + 물리 침투 감지 센서
+인증 수준	소프트 인증 (신뢰 낮음)	CC EAL4+ / FIPS 140-3 하드웨어 인증 목표
+
+보안 칩(TPM)이 탑재되면 Private Key가 하드웨어 경계 밖으로 절대 노출되지 않습니다. 소프트웨어 구현에서는 OS 수준에서 키 탈취가 이론적으로 가능하지만, TPM Sealed Storage는 칩 외부로 키 원본이 나오지 않으므로 루트킷이나 OS 취약점을 통한 공격이 근본적으로 차단됩니다.
+
+
+3. AI Node PC 하드웨어 아키텍처
+
+사업계획서에서 제안한 AI Node PC의 핵심 구성 요소(CPU+NPU · GPU Slot · TPM+PQC · NVMe · AI Agent SW)를 KorPIX Trust Terminal 관점에서 구체적인 기술 스펙으로 정의합니다.
+
+3.1 하드웨어 레이어 구조 (4계층)
+
+계층	구성 요소	역할	KorPIX 연결
+L1 — 보안 하드웨어	TPM 2.0 칩 + Tamper Sensor	키 보관 · 부팅 측정 · 물리 침투 감지	Trust Terminal 신뢰 루트 (Root of Trust)
+L2 — 격리 실행	TEE (OP-TEE / ARM TrustZone)	Policy Engine 격리 실행 · 키 연산 보호	Policy Engine 보안 경계
+L3 — AI 연산	NPU (온디바이스 추론) + GPU Slot	AI 모델 추론 · PQC 연산 가속	AI Agent Runtime + PQC 서명
+L4 — 저장 / 통신	NVMe (암호화 스토리지) + 네트워크	감사 로그 저장 · Audit Network 통신	Audit Network 연결
+
+3.2 L1 — TPM 2.0 보안 칩 상세 스펙
+
+TPM 2.0 (Trusted Platform Module) — 신뢰 루트
+규격	TCG TPM 2.0 (ISO/IEC 11889) · 펌웨어 독립 실행
+지원 알고리즘	RSA-2048 · ECC P-256 · SHA-256/384 · HMAC · AES-256
+PQC 확장	CRYSTALS-Kyber (키 캡슐화) · CRYSTALS-Dilithium (디지털 서명) 소프트 레이어 연동
+PCR 레지스터	24개 PCR (Platform Configuration Register) — 부팅 측정값 저장
+Sealed Storage	PCR 상태와 바인딩된 키 저장 — 부팅 무결성 변조 시 키 자동 잠금
+키 계층	SRK(Storage Root Key) → AIK(Attestation Identity Key) → 애플리케이션 키
+통신 인터페이스	SPI / I2C · TPM2 TSS(Software Stack) · tpm2-tools 연동
+물리 보안	Tamper-evident 패키징 · 전압·온도 이상 감지 시 키 소거
+인증 목표	FIPS 140-3 Level 2 · CC EAL4+
+
+3.3 L2 — TEE (Trusted Execution Environment) 구성
+
+TEE — Policy Engine 격리 실행 환경
+TEE 구현체	OP-TEE (Open Portable TEE) · ARM TrustZone 기반
+보안 세계 격리	Normal World (일반 OS) / Secure World (TEE) 완전 메모리 분리
+TA 구조	Trusted Application — Policy Engine · Key Manager · Audit Signer 각각 독립 TA
+통신 방식	TEE Client API (GlobalPlatform GP TEE 1.0) · Shared Memory 경유
+메모리 보호	TrustZone Address Space Controller (TZASC) · 32MB Secure RAM 전용 할당
+파일 시스템	Secure Storage (OP-TEE REE FS 암호화) — TEE 내부 데이터 AES-GCM 암호화
+디버그 차단	Production 환경에서 JTAG/SWD 디버그 포트 하드웨어 퓨즈로 영구 차단
+업데이트	OTA 펌웨어 업데이트 — TPM 서명 검증 후 TEE 내부에서 적용
+
+3.4 L3 — NPU + AI Runtime 구성
+
+NPU (Neural Processing Unit) — 온디바이스 AI 추론
+NPU 구성	전용 NPU 칩 (Qualcomm Hexagon / MediaTek APU / 국산 NPU 후보 검토)
+추론 성능 목표	INT8 기준 10 TOPS 이상 · 배터리 소모 3W 이하 (상시 추론 기준)
+지원 프레임워크	TensorFlow Lite · ONNX Runtime · PyTorch Mobile
+격리 실행	NPU 추론 작업은 TEE Secure World에서 스케줄링 — Normal World OS 접근 차단
+모델 보호	AI 모델 가중치 AES-256 암호화 저장 · 추론 시 TPM 키로 복호화
+Policy Engine AI	Risk Score 예측 모델 NPU 오프로딩 → CPU 부하 70% 절감 목표
+PQC 가속	CRYSTALS-Kyber / Dilithium NPU 가속 연산 — 소프트 대비 5x 성능 목표
+GPU Slot 확장	PCIe Gen4 x4 GPU 슬롯 — 고성능 AI 모델 확장 (LLM 로컬 추론 옵션)
+
+3.5 L4 — NVMe 암호화 스토리지 구성
+
+NVMe Encrypted Storage — 감사 데이터 보관
+스토리지 규격	NVMe PCIe Gen4 · 512GB 이상 · 읽기 7,000MB/s · 쓰기 6,500MB/s
+암호화 방식	TCG Opal 2.0 Self-Encrypting Drive (SED) · AES-256-XTS 전체 디스크 암호화
+키 관리	암호화 키 TPM Sealed Storage에 바인딩 — 단말 분리 시 복호화 불가
+감사 파티션	전용 감사 로그 파티션 (100GB) — 일반 OS 파일시스템과 완전 분리 마운트
+쓰기 보호	감사 파티션 Write-Once 정책 — 기존 레코드 덮어쓰기 하드웨어 차단
+백업 구조	감사 로그 → 로컬 NVMe 1차 저장 → Audit Network 분산 원장 2차 동기화
+내구성	TBW(Total Bytes Written) 600TB 이상 · 연간 감사 로그 예상 용량 20GB 기준 30년
+보안 삭제	TCG Sanitize 명령 — 물리 단말 폐기 시 암호화 키 삭제로 데이터 복원 불가
+
+
+4. 부팅 신뢰 체인 (Boot Trust Chain)
+
+하드웨어 Trust Terminal의 가장 중요한 특성은 '부팅 시점부터 모든 소프트웨어가 무결하다'는 것을 증명할 수 있다는 점입니다. 세 단계 부팅 체인이 이를 보장합니다.
+
+단계	구성 요소	동작 내용	실패 시 처리
+1단계 — Secure Boot	UEFI Firmware + 서명된 부트로더	부트로더 서명을 UEFI DB에 등록된 KorPIX 인증서로 검증 · 미서명 OS 로딩 차단	부팅 중단 · TPM PCR 오염 기록
+2단계 — Measured Boot	TPM PCR 레지스터	부트로더 → 커널 → TEE → Policy Engine 각 단계 해시를 TPM PCR에 순차 기록	PCR 값 변경 → Sealed Key 잠금 자동 발동
+3단계 — Remote Attestation	TPM Quote + Audit Network	단말이 TPM AIK로 서명한 PCR 스냅샷을 Audit Network에 전송 · 원격 검증자가 무결성 확인	Attestation 실패 → 단말 격리 · 서비스 차단
+
+// Remote Attestation — TPM Quote
+# Remote Attestation 흐름 — TPM Quote 생성 및 검증 (Python 의사 코드)
+
+class RemoteAttestationHandler:
+    def generate_quote(self, nonce: bytes) -> AttestationQuote:
+        # TPM에서 현재 PCR 값 + nonce를 AIK로 서명
+        pcr_values  = tpm.read_pcrs(indices=[0,1,2,3,4,7,11,14])
+        quote_data  = tpm.quote(pcr_selection=pcr_values, nonce=nonce)
+        # PCR 0: UEFI Firmware, PCR 4: Boot Manager
+        # PCR 7: Secure Boot state, PCR 11: BitLocker/TEE
+        return AttestationQuote(
+            pcr_values   = pcr_values,
+            tpm_quote    = quote_data,       # AIK 서명 포함
+            aik_cert     = tpm.get_aik_cert(),
+            timestamp    = now(),
+            terminal_id  = self.terminal_id,
+        )
+
+    def verify_quote(self, quote: AttestationQuote,
+                     expected_pcrs: dict) -> bool:
+        # 1. AIK 인증서 → KorPIX CA 서명 체인 검증
+        if not ca_store.verify(quote.aik_cert):  return False
+        # 2. TPM Quote 서명 검증
+        if not quote.aik_cert.verify(quote.tpm_quote): return False
+        # 3. PCR 값 — 알려진 좋은 값과 비교
+        for pcr_idx, expected in expected_pcrs.items():
+            if quote.pcr_values[pcr_idx] != expected:
+                audit.log_tamper_event(quote.terminal_id, pcr_idx)
+                return False
+        return True
+
+
+5. Policy Engine 하드웨어 이식 구현
+
+UC-001~004에서 검증된 Policy Engine 로직을 TEE Secure World 내 Trusted Application(TA)으로 이식합니다. 핵심 원칙은 Risk Score 계산과 결정 로직이 TEE 밖으로 절대 나오지 않는 것입니다.
+
+5.1 TEE Trusted Application 구조
+
+TA 이름	역할	TEE 메모리 할당	외부 인터페이스
+policy_engine_ta	Risk Score 계산 · 승인 결정	8 MB	CA → TA: 행동 요청 / TA → CA: 결정 결과
+key_manager_ta	PQC 키 생성·보관·서명	4 MB	TA 내부 전용 (외부 직접 접근 불가)
+audit_signer_ta	Action Record 디지털 서명 생성	4 MB	CA → TA: 레코드 해시 / TA → CA: 서명값
+attestation_ta	TPM Quote 생성 · PCR 검증	2 MB	CA → TA: nonce / TA → CA: TPM Quote
+
+5.2 TEE 내 Policy Engine TA 핵심 코드
+
+// policy_engine_ta.c  (TEE Secure World)
+// Policy Engine Trusted Application — TEE Secure World (C)
+// OP-TEE TA 진입점 (GlobalPlatform TEE API 준수)
+
+TEE_Result TA_InvokeCommandEntryPoint(
+    void *sess_ctx,
+    uint32_t cmd_id,
+    uint32_t param_types,
+    TEE_Param params[4])
+{
+    switch (cmd_id) {
+    case CMD_EVALUATE_RISK:
+        return evaluate_risk_score(params);   // Risk Score 계산
+    case CMD_SIGN_AUDIT_RECORD:
+        return sign_audit_record(params);     // 감사 레코드 서명
+    case CMD_VERIFY_ATTESTATION:
+        return verify_pcr_quote(params);      // Remote Attestation
+    default:
+        return TEE_ERROR_NOT_SUPPORTED;
+    }
+}
+
+// Risk Score 계산 — TEE 내부에서만 실행
+static TEE_Result evaluate_risk_score(
+    TEE_Param params[4])
+{
+    struct ActionRequest *req = params[0].memref.buffer;
+    uint32_t *score_out       = params[1].memref.buffer;
+    uint32_t *decision_out    = params[2].memref.buffer;
+
+    uint32_t score = 0;
+
+    // 1. 행동 유형 기본 점수 (TEE 내 정책 테이블 조회)
+    score += policy_table_lookup(req->action_type);
+
+    // 2. 금액 기반 점수
+    score += amount_risk_score(req->amount);
+
+    // 3. 사용자 정책 — TEE Secure Storage에서 읽기
+    UserPolicy policy;
+    tee_read_user_policy(req->user_id, &policy);
+    if (req->amount > policy.monthly_limit) score += 30;
+
+    // 4. 결정 (TEE 밖으로 점수 원본 미노출 — 결정값만 반환)
+    *score_out    = score;   // 감사 목적으로만 반환
+    *decision_out = score < 30 ? DECISION_AUTO_APPROVE :
+                   score < 60 ? DECISION_USER_CONFIRM  :
+                   score < 80 ? DECISION_ADMIN_APPROVE :
+                                DECISION_DENY;
+    return TEE_SUCCESS;
+}
+
+5.3 Normal World → TEE 호출 구조 (CA 코드)
+
+# policy_engine_hw_client.py  (Normal World CA)
+# TEE Client Application — Normal World에서 TEE 호출 (Python)
+# OP-TEE Python 바인딩 또는 C FFI 경유
+
+class PolicyEngineHWClient:
+    TA_UUID = '12345678-1234-1234-1234-policyta001'  # TA 고유 UUID
+
+    def evaluate_action(self, action: ActionRequest) -> PolicyDecision:
+        # TEE 세션 열기
+        ctx    = TEEContext()
+        sess   = ctx.open_session(self.TA_UUID)
+
+        # 공유 메모리에 요청 데이터 복사
+        shm_in  = ctx.allocate_shared_memory(sizeof(ActionRequest))
+        shm_out = ctx.allocate_shared_memory(sizeof(PolicyResult))
+        shm_in.write(action.serialize())
+
+        # TEE invoke — Secure World에서 Risk 계산
+        params = [
+            TEEParam.memref_input(shm_in),
+            TEEParam.memref_output(shm_out),
+            TEEParam.value_output(),   # decision enum
+            TEEParam.value_output(),   # risk_score (감사용)
+        ]
+        ret = sess.invoke_command(CMD_EVALUATE_RISK, params)
+
+        if ret != TEE_SUCCESS:
+            raise TEEInvocationError(f'Policy Engine TA 오류: {ret}')
+
+        result = PolicyResult.deserialize(shm_out.read())
+
+        # TEE 세션 닫기 — Secure World 메모리 정리
+        sess.close()
+        ctx.finalize()
+        return result
+
+
+6. Audit Network 하드웨어 연동
+
+소프트웨어 환경에서는 감사 기록이 파일 시스템에 저장되어 OS 권한을 가진 공격자가 수정 가능했습니다. 하드웨어 환경에서는 TPM PCR 기반 하드웨어 로그와 NVMe Write-Once 파티션이 결합되어 물리적 수준의 불변성을 보장합니다.
+
+6.1 하드웨어 감사 기록 파이프라인
+
+단계	위치	처리 내용	불변성 보장 수단
+생성	TEE — audit_signer_ta	Action Record 직렬화 → TPM AIK 서명 생성	TEE 격리 + TPM 하드웨어 서명
+1차 저장	NVMe 감사 파티션	서명된 레코드 Write-Once 파티션에 순차 저장	하드웨어 쓰기 보호 + AES-256 암호화
+PCR 기록	TPM PCR[14]	감사 파티션 최신 블록 해시를 TPM PCR에 extend	TPM 하드웨어 — PCR 값 되돌리기 불가
+2차 동기화	Audit Network	원격 분산 원장에 비동기 복제 (5분 배치)	블록체인형 해시 체인 + 다중 노드
+검증	Attestation TA	PCR 값 + NVMe 블록 해시 일치 여부 주기 확인	TPM Quote 기반 무결성 증명
+
+6.2 TPM PCR 기반 감사 로그 확장
+
+// tpm_audit_extend.c
+// TPM PCR Extend — 감사 블록 해시를 TPM에 기록 (C)
+// PCR[14]을 KorPIX 감사 전용 레지스터로 예약
+
+#define KORPIX_AUDIT_PCR  14
+
+int korpix_extend_audit_pcr(const uint8_t *block_hash,
+                             size_t hash_len)
+{
+    ESYS_CONTEXT *esys_ctx;
+    TSS2_RC rc;
+
+    // TPM2 Software Stack 초기화
+    rc = Esys_Initialize(&esys_ctx, NULL, NULL);
+    if (rc != TSS2_RC_SUCCESS) return -1;
+
+    // PCR Extend — 새 블록 해시를 PCR[14]에 연속 반영
+    // PCR_new = SHA256(PCR_current || block_hash)
+    // → PCR 값을 이전 상태로 되돌리는 것이 물리적으로 불가능
+    TPML_DIGEST_VALUES digests = {
+        .count = 1,
+        .digests[0].hashAlg = TPM2_ALG_SHA256,
+    };
+    memcpy(digests.digests[0].digest.sha256, block_hash, hash_len);
+
+    rc = Esys_PCR_Extend(esys_ctx,
+                         KORPIX_AUDIT_PCR,  // PCR 인덱스
+                         ESYS_TR_PASSWORD,
+                         ESYS_TR_NONE, ESYS_TR_NONE,
+                         &digests);
+
+    Esys_Finalize(&esys_ctx);
+    return (rc == TSS2_RC_SUCCESS) ? 0 : -1;
+}
+
+
+7. PQC (양자내성암호) 하드웨어 가속 구현
+
+소프트웨어 PQC는 CPU 부하가 높아 실시간 서비스에 제약이 있습니다. UC-005에서는 NPU와 전용 암호 가속기를 활용하여 PQC 연산 성능을 5배 이상 향상하는 것이 목표입니다.
+
+7.1 PQC 알고리즘 및 성능 목표
+
+알고리즘	용도	SW 처리 시간	HW 목표 시간	가속 방식
+CRYSTALS-Kyber-768	키 캡슐화 (KEM) — Audit Network 통신 암호화	12 ms (CPU 단독)	2 ms 이하	NPU NTT 연산 오프로딩
+CRYSTALS-Dilithium3	디지털 서명 — Action Record 서명	18 ms (CPU 단독)	3 ms 이하	NPU 다항식 연산 + TPM 서명
+SPHINCS+-SHA256	해시 기반 서명 — 장기 보존 레코드 서명	250 ms (CPU 단독)	50 ms 이하	SHA-256 하드웨어 가속기 활용
+AES-256-GCM	NVMe 감사 스토리지 암호화	1 ms 이하	0.1 ms 이하	AES-NI 하드웨어 명령어 세트
+
+7.2 NPU PQC 오프로딩 구조
+
+// pqc_hw_signer.c  (TEE + NPU 연동)
+// PQC NPU 오프로딩 — Dilithium3 서명 생성 (C, TEE 내부)
+// NPU를 다항식 연산(NTT) 가속기로 활용
+
+typedef struct {
+    npu_handle_t  npu;          // NPU 디바이스 핸들
+    tpm_handle_t  tpm;          // TPM 핸들 (최종 키 서명)
+} PQCSigner;
+
+int pqc_dilithium_sign_hw(
+    PQCSigner *signer,
+    const uint8_t *message, size_t msg_len,
+    uint8_t *sig_out,       size_t *sig_len)
+{
+    // 1. 메시지 해시 (CPU — SHA3-256)
+    uint8_t mu[64];
+    sha3_256(message, msg_len, mu);
+
+    // 2. NTT (Number Theoretic Transform) — NPU 오프로딩
+    //    Dilithium의 핵심 연산(다항식 곱셈)을 NPU에 위임
+    poly_vec_t w1, cs1, cs2;
+    npu_submit_ntt(signer->npu, mu, sizeof(mu), &w1);  // 비동기 제출
+    npu_wait_complete(signer->npu, NPU_TIMEOUT_MS);    // 완료 대기
+    npu_get_result(signer->npu, &w1);
+
+    // 3. 거부 샘플링 (CPU — 연산량 적음)
+    int retry = 0;
+    while (retry++ < MAX_REJECTION) {
+        if (dilithium_make_hint(&w1, &cs1, &cs2)) break;
+    }
+
+    // 4. 최종 서명 패킹 (CPU)
+    dilithium_pack_sig(sig_out, sig_len, &w1, &cs2);
+
+    // 5. TPM으로 서명에 추가 인증 도장 (HW 신뢰 루트 연결)
+    tpm_certify(signer->tpm, sig_out, *sig_len);
+
+    return 0;
+}
+
+
+8. 소프트웨어 → 하드웨어 전환 검증 프로토콜
+
+UC-001~004의 소프트웨어 구현과 UC-005 하드웨어 구현이 기능적으로 완전히 동일하게 동작하는지 확인하는 전환 검증 프로토콜을 정의합니다.
+
+검증 항목	SW 기준값	HW 목표값	검증 방법	통과 기준
+Risk Score 동일성	SW 계산값	HW TEE 계산값	동일 입력 1,000건 비교	100% 일치
+Action Record 호환성	SW 직렬화 형식	HW 직렬화 형식	상호 역직렬화 검증	필드 100% 호환
+PQC 서명 검증	SW 서명 (liboqs)	HW NPU 서명	SW 검증기로 HW 서명 검증	모든 서명 검증 통과
+감사 해시 체인	SW SHA-256 체인	TPM PCR + NVMe	체인 연속성 검증	체인 단절 0건
+처리 속도	SW 평균 응답 시간	HW 평균 응답 시간	동일 시나리오 100회 실행	HW가 2배 이상 빠름
+PQC 연산 속도	SW PQC 처리 시간	HW NPU 처리 시간	서명 생성 1,000회 측정	HW가 5배 이상 빠름
+전력 소모	SW CPU 소모 전력	HW 전체 소모 전력	동일 부하 30분 측정	HW가 40% 이상 절감
+Attestation 유효성	해당 없음	TPM Quote 유효	원격 검증자 확인	Attestation 100% 성공
+
+
+9. 하드웨어 개발 단계 및 일정
+
+AI Node PC 하드웨어는 전자제품 양산 표준 개발 주기인 EVT → DVT → PVT 세 단계를 거칩니다. UC-005 파일럿은 EVT와 DVT 완료를 목표로 합니다.
+
+단계	명칭	기간	핵심 목표	통과 기준
+EVT	Engineering Validation Test	1~4주	TPM·NPU 드라이버 포팅 · TEE 부팅 확인 · 기본 기능 동작	TPM PCR 측정 성공 · TEE Hello World 동작
+DVT	Design Validation Test	5~12주	Policy Engine TA 완전 이식 · PQC 가속 검증 · UC-001~004 재실행	전환 검증 프로토콜 8개 항목 통과
+PVT	Production Validation Test	13~24주 (다음 단계)	양산 설계 완성 · CC EAL4+ 인증 준비 · 50대 필드 테스트	인증 기관 제출 준비 완료
+
+UC-005 파일럿 16주 세부 일정
+
+Phase	기간	핵심 작업	목표 산출물
+Phase 1	1~4주	HW 파트너 선정 · EVT 보드 수령 · TPM 드라이버 포팅 · Secure Boot 검증	EVT 보드 TPM 동작 확인
+Phase 2	5~8주	TEE(OP-TEE) 환경 구성 · Policy Engine 포팅 · NPU AI Runtime 통합	TEE 내 Policy Engine 동작
+Phase 3	9~12주	Audit Network 하드웨어 연동 · TPM PCR 기반 감사 로그 · Remote Attestation	HW 감사 기록 무결성 검증
+Phase 4	13~16주	UC-001~004 전체 재실행 (HW 환경) · KPI 비교 · 양산 설계 검토	HW 파일럿 최종 검증 보고서
+
+
+10. KPI 및 성공 기준
+
+KPI 지표	SW 기준값	HW 목표값	측정 방법
+Policy Engine 응답 시간	평균 120 ms	60 ms 이하	동일 시나리오 100회 측정
+PQC 서명 생성 시간	Dilithium 18 ms	3 ms 이하	서명 1,000회 평균
+전력 소모 (상시)	CPU 피크 15W	전체 5W 이하	전력 측정기 30분 평균
+Risk Score 정확도	100%	100%	SW/HW 1,000건 비교
+감사 기록 무결성	100%	100%	TPM PCR + 해시 체인 검증
+Remote Attestation 성공률	해당 없음	100%	Attestation 전수 확인
+Secure Boot 검증	해당 없음	100% 통과	미서명 OS 로딩 차단 확인
+UC-001~004 재실행 호환성	SW 기준 KPI	동등 이상 달성	동일 시나리오 HW 재실행
+
+
+11. 참여 주체 및 역할
+
+역할	참여 주체 (후보)	담당 기능	협력 형태
+HW 설계 주관	KorPIX 팀 + HW 파트너사	AI Node PC 보드 설계 · 컴포넌트 선정 · 레이아웃	주관
+CPU+NPU 공급	Qualcomm / MediaTek / 국산	SoC 공급 · NPU SDK · TEE 드라이버 기술 지원	HW 파트너
+TPM 칩 공급	Infineon / STMicro / ICTK	TPM 2.0 칩 공급 · TSS 드라이버 · 인증 지원	부품 파트너
+보안 SW	보안 기업	OP-TEE TA 개발 · PQC 라이브러리 최적화 · 보안 검증	기술 협력
+NVMe 스토리지	삼성 / SK하이닉스	TCG Opal SED NVMe 공급 · 암호화 키 관리 연동	부품 파트너
+인증 기관	KISA / 국제 CC 인증 기관	CC EAL4+ 인증 준비 지원 · FIPS 140-3 테스트	인증 파트너
+검증팀	UC-001~004 검증팀	HW 환경에서 UC-001~004 시나리오 재실행 · KPI 비교	내부 검증
+
+
+12. 리스크 및 대응 방안
+
+리스크 항목	발생 가능성	영향도	대응 방안
+TPM 드라이버 포팅 실패	중간	높음	tpm2-tools + OP-TEE 레퍼런스 보드 선행 검증 · 칩 벤더 기술 지원 계약
+TEE-NPU 인터페이스 불안정	중간	높음	EVT 단계에서 인터페이스 안정화 검증 · NPU SDK 버전 고정
+PQC 성능 목표 미달	중간	중간	NPU 오프로딩 비율 조정 · SPHINCS+ → Dilithium 우선 순위 전환
+국산 NPU 생태계 미성숙	높음	중간	Qualcomm/MediaTek 검증 완료 후 국산 전환 로드맵 별도 수립
+CC EAL4+ 인증 장기화	높음	중간	DVT 완료 후 인증 준비 병행 · PVT 단계에서 본격 인증 진행
+EVT 보드 납기 지연	중간	높음	대체 레퍼런스 보드(Raspberry Pi + TPM HAT) 병행 개발
+소프트웨어 호환성 충돌	낮음	중간	전환 검증 프로토콜 8개 항목 EVT 완료 즉시 시작
+
+
+13. UC-001~005 시리즈 완성 의미
+
+UC-005 파일럿이 성공하면 KorPIX는 소프트웨어 개념에서 실물 하드웨어 플랫폼으로 전환됩니다. 다섯 개 파일럿이 쌓아온 검증 결과는 다음과 같은 의미를 가집니다.
+
+파일럿	검증 영역	핵심 성과물	다음 단계 기여
+UC-001	개인 결제 자동화	ActionRecord 표준 · 기본 Policy Engine	모든 UC의 기반 구조
+UC-002	투자 자동화	고위험 제어 · 서킷 브레이커 · 규제 감사 기록	금융 파트너 유치 근거
+UC-003	기업 구매 승인	조직 계층 결재 · ERP 연동 · 다단계 승인 티어	엔터프라이즈 사업화
+UC-004	공공 행정 서비스	개인정보 4등급 체계 · 공공 API 게이트웨이	정부 파트너십 · 표준 제안
+UC-005	HW Trust Terminal	TPM·TEE·NPU 탑재 실물 단말 · HW 감사 무결성	AI Node PC 양산 · 컨소시엄 확대
+
+UC-005 이후 로드맵
+
+1.	AI Node PC PVT 및 소규모 양산 (50~100대) — 컨소시엄 파트너사 배포 및 현장 검증
+2.	CC EAL4+ 인증 취득 — 공공기관·금융기관 납품 요건 충족
+3.	KorPIX 컨소시엄 본격 구성 — AI 기업·보안 기업·클라우드·금융·단말 제조·정부 기관 참여
+4.	KorPIX Terminal Standard v1.0 공개 — 타 제조사도 호환 단말을 만들 수 있는 개방형 표준 발표
+5.	AI Node PC 일반 판매 — 개인용 / 기업용 / 공공기관용 SKU 분리 출시
+
+UC-005 완료 시점이 KorPIX 백서에서 말한 '1단계 Architecture 설계'와 '2단계 기술 표준 정의'가 실물로 완성되는 시점입니다. 이때부터 본격적인 컨소시엄(3단계)과 상용 파일럿(4단계) 추진이 가능해집니다.
+
+
+이 문서는 KorPIX UC-001~004 파일럿 성공 위에 구축된 다섯 번째이자 최종 파일럿 유스케이스 계획서입니다. UC-005 완료가 AI Node PC 실물 구현의 출발점입니다.
