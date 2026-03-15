@@ -1,0 +1,218 @@
+KorPIX
+파일럿 프로젝트 유스케이스
+AI 자동 결제 신뢰 실행 파일럿
+Pilot Use Case UC-001
+Version 0.1  ·  2026년 초안
+ 
+1. 유스케이스 개요
+
+UC ID	UC-001 · AI 자동 결제 신뢰 실행 파일럿
+분류	소액 정기결제 자동화 (구독 서비스 / 공과금 납부)
+목적	KorPIX 3대 시스템(Trust Terminal · Policy Engine · Audit Network)의 실제 동작 검증
+파일럿 기간	4주 (1개월) · 가상 결제 환경 적용
+참여 규모	일반 사용자 30명 · 소액 결제 건당 최대 5만원
+
+이 유스케이스는 KorPIX 백서에서 제안하는 아키텍처를 '소액 정기결제 자동화'라는 가장 단순하고 검증 가능한 시나리오로 좁혀, 실제 코드와 운영 환경에서 어떻게 동작하는지를 증명하는 첫 번째 파일럿 계획입니다.
+AI 에이전트가 사용자를 대신해 구독 서비스 결제를 수행하는 과정에서 Trust Terminal이 행동을 시작하고, Policy Engine이 정책과 위험도를 판단하며, Audit Network가 모든 과정을 불변 기록으로 저장하는 전체 흐름을 검증합니다.
+
+
+2. 문제 정의 및 해결 목표
+
+2.1 현재 상황의 문제
+현재 AI 에이전트 기반 자동 결제 시스템은 다음 세 가지 구조적 문제를 가지고 있습니다.
+
+•	행동 통제 부재: AI가 사용자 의도와 다르게 과도한 결제를 실행하거나, 정책 범위를 벗어난 거래를 수행할 수 있는 장치가 없음
+•	책임 추적 불가: AI가 수행한 결제가 어떤 정책과 권한으로 실행되었는지 사후에 확인할 방법이 없음
+•	감사 기록 변조 가능성: 기존 로그 시스템은 관리자가 임의로 수정·삭제할 수 있어 분쟁 발생 시 객관적 증거 확보가 어려움
+
+2.2 KorPIX가 제시하는 해결 구조
+•	Trust Terminal: AI 결제 행동이 시작되는 환경을 사용자 인증 + 샌드박스 격리로 보호
+•	Policy Engine: 결제 요청이 실행되기 전, 금액·권한·정책·위험도를 자동 검증하여 승인/차단/에스컬레이션 결정
+•	Audit Network: 모든 결제 행동을 해시 체인 + 디지털 서명으로 보호된 불변 감사 기록으로 저장
+
+
+3. 파일럿 시나리오 상세
+
+이 파일럿은 사용자가 AI 에이전트에게 '매달 넷플릭스, 유튜브 프리미엄, 전기요금을 자동으로 결제해줘'라고 위임하는 상황을 가정합니다. 한 달간 총 3회의 정기결제가 발생하며, 각 결제마다 KorPIX 전체 플로우가 동작합니다.
+
+3.1 기본 시나리오 — 정상 결제 흐름
+
+단계	행위자	행동 내용	관여 시스템
+S01	사용자	AI 에이전트에게 정기결제 위임 설정 (서비스명 · 한도 · 결제일 입력)	Trust Terminal / User Interface
+S02	Trust Terminal	사용자 신원 인증 (생체인증 또는 PIN) · 단말 보안 상태 확인	Secure Hardware Module · Auth System
+S03	AI Agent	결제일 도래 시 결제 요청(Action Request) 자동 생성	AI Agent Runtime
+S04	Policy Engine	결제 금액·한도·패턴·시스템 상태 기반 Risk Score 계산	Risk Evaluator
+S05	Policy Engine	Risk Score 30 미만 → 자동 승인(Auto Approve) 결정	Decision Engine
+S06	Execution System	외부 결제 API 호출 → 실제 결제 처리 수행	Payment API Gateway
+S07	Audit Network	Action Record 생성 → 해시 체인 연결 → Distributed Ledger 저장	Terminal Log → Audit Gateway → Ledger
+S08	사용자	결제 완료 알림 수신 · 감사 내역 조회 가능	Audit Query System
+
+3.2 예외 시나리오 — 한도 초과 결제 시도
+AI 에이전트가 사용자 설정 한도(월 10만원)를 초과하는 결제(15만원)를 시도할 경우 Policy Engine이 개입합니다.
+
+단계	행위자	행동 내용	관여 시스템
+E01	AI Agent	15만원 결제 요청 생성 (설정 한도 10만원 초과)	AI Agent Runtime
+E02	Policy Engine	Transaction Value 초과 감지 → Risk Score 상승 (70점)	Risk Evaluator
+E03	Policy Engine	Risk Score 60~80 → 사용자 확인 요청 (User Confirm)	Decision Engine
+E04	사용자	알림 수신 → 승인 또는 거절 선택	Trust Terminal / UI
+E05a	사용자 승인 시	Policy Engine이 일회성 예외 승인 → 결제 실행	Execution System
+E05b	사용자 거절 시	결제 차단 · 차단 사유 포함 Audit Record 생성	Audit Network
+
+3.3 예외 시나리오 — 이상 결제 패턴 탐지
+짧은 시간 내 동일 서비스에 반복 결제 시도가 발생하는 경우 Policy Engine이 이상 패턴으로 판단하고 자동 차단합니다.
+
+단계	행위자	행동 내용	관여 시스템
+A01	AI Agent	동일 서비스에 10분 내 3회 결제 요청 연속 생성	AI Agent Runtime
+A02	Policy Engine	행동 패턴 분석 → 비정상 반복 패턴 감지	Behavior Monitor
+A03	Policy Engine	Risk Score 85 → Admin Approval 에스컬레이션	Decision Engine
+A04	관리자	알림 수신 → 상황 검토 후 허용/차단 결정	Admin Console
+A05	Audit Network	이상 탐지 이벤트 포함 전체 Action Record 저장	Audit Network
+
+
+4. 기술 구현 명세
+
+4.1 Action Record 데이터 구조
+모든 결제 행동은 아래 표준 구조로 기록됩니다. 이 구조가 KorPIX의 공통어(Common Interface)가 됩니다.
+
+// Action Record — KorPIX 표준 감사 기록 구조 (TypeScript)
+interface ActionRecord {
+  actionId:        string;           // UUID v4 — 고유 행동 식별자
+  agentId:         string;           // AI 에이전트 식별자
+  userId:          string;           // 위임한 사용자 ID
+  terminalId:      string;           // 실행 단말 ID
+  actionType:      'PAYMENT';        // 결제 유형
+  payload: {
+    service:       string;           // 'netflix' | 'youtube_premium' | ...
+    amount:        number;           // 결제 금액 (KRW)
+    currency:      'KRW';
+  };
+  policyDecision:  PolicyResult;     // AUTO_APPROVE | USER_CONFIRM | ADMIN_APPROVE | DENY
+  riskScore:       number;           // 0~100 (낮을수록 안전)
+  executionResult: 'SUCCESS' | 'BLOCKED' | 'PENDING';
+  timestamp:       string;           // ISO 8601
+  prevHash:        string;           // 이전 레코드 해시 (해시 체인)
+  digitalSignature: string;          // 단말 서명 (SHA-256 + ECDSA)
+}
+
+4.2 Policy Engine — Risk Score 계산 로직
+
+# Policy Engine — Risk Score 계산 (Python 의사 코드)
+class RiskEvaluator:
+    def calculate(self, req: ActionRequest) -> int:
+        score = 0
+
+        # 1. 행동 유형 기본 점수
+        score += {'PAYMENT': 20, 'DATA_ACCESS': 30, 'CONTRACT': 50}.get(req.type, 40)
+
+        # 2. 거래 금액 가중치
+        if   req.amount <= 10_000: score += 0
+        elif req.amount <= 50_000: score += 10
+        elif req.amount <= 100_000: score += 25
+        else:                      score += 45
+
+        # 3. 한도 초과 여부
+        if req.amount > user_policy.monthly_limit: score += 30
+
+        # 4. 이상 패턴 (10분 내 3회 이상)
+        if recent_count(req.userId, minutes=10) >= 3: score += 40
+
+        # 5. 결정 분기
+        if score < 30:  return Decision.AUTO_APPROVE    # 자동 승인
+        if score < 60:  return Decision.USER_CONFIRM    # 사용자 확인
+        if score < 80:  return Decision.ADMIN_APPROVE   # 관리자 승인
+        return          Decision.DENY                   # 자동 차단
+
+4.3 Audit Network — 해시 체인 기록
+
+# 해시 체인 감사 기록 생성 (Python)
+import hashlib, json
+from datetime import datetime, timezone
+
+def create_audit_record(action: ActionRecord, prev_hash: str) -> dict:
+    record = {
+        'action_id':       action.action_id,
+        'agent_id':        action.agent_id,
+        'user_id':         action.user_id,
+        'terminal_id':     action.terminal_id,
+        'action_type':     action.action_type,
+        'amount':          action.payload.amount,
+        'policy_decision': action.policy_decision,
+        'risk_score':      action.risk_score,
+        'result':          action.execution_result,
+        'timestamp':       datetime.now(timezone.utc).isoformat(),
+        'prev_hash':       prev_hash,    # 이전 레코드와 체인 연결
+    }
+    record_str = json.dumps(record, sort_keys=True, ensure_ascii=False)
+    record['hash'] = hashlib.sha256(record_str.encode()).hexdigest()
+    record['signature'] = terminal.sign(record['hash'])   # 단말 서명
+    return record
+
+# 무결성 검증
+def verify_chain(records: list[dict]) -> bool:
+    for i in range(1, len(records)):
+        if records[i]['prev_hash'] != records[i-1]['hash']:
+            return False   # 변조 감지
+    return True
+
+
+5. KPI 및 성공 기준
+
+파일럿 완료 후 아래 KPI를 기준으로 성공 여부를 판단하며, 미달 항목은 개선 사항으로 정리해 다음 단계 사업계획서에 반영합니다.
+
+KPI 지표	목표치	측정 방법	비고
+결제 성공률	95% 이상	실행 결과 로그	Policy 승인 후 기준
+Policy 판단 정확도	98% 이상	오승인/오차단 비율	수동 검토 비교
+평균 처리 시간	3초 이내	Timestamp 측정	Terminal → Execution
+감사 기록 무결성	100%	해시 체인 검증	변조 0건 목표
+사용자 만족도	4.0 / 5.0 이상	설문 조사	30명 참가자 기준
+이상 결제 탐지율	90% 이상	테스트 케이스 통과	사전 시나리오 기준
+
+KPI 전체 달성 시: 컨소시엄 구성 단계(Phase 3)로 진행 · 정부 규제 샌드박스 신청 준비에 착수합니다.
+KPI 미달 시: 미달 원인 분석 보고서 작성 후 아키텍처 수정 → 2차 파일럿 계획을 수립합니다.
+
+
+6. 리스크 및 대응 방안
+
+리스크 항목	발생 가능성	영향도	대응 방안
+사용자 인증 실패	낮음	높음	다중 인증 재시도 + 거래 차단
+결제 한도 초과	중간	높음	Policy Engine 자동 차단 + 알림
+이상 결제 패턴	낮음	매우 높음	Admin Approval 에스컬레이션
+감사 기록 오류	매우 낮음	높음	해시 체인 자동 복원
+외부 API 연동 실패	중간	중간	자동 재시도 + 거래 보류
+
+
+7. 참여 주체 및 역할
+
+파일럿 단계에서는 최소 필수 파트너만 구성합니다. 컨소시엄 전체 구성은 파일럿 결과 검증 이후 Phase 3에서 확대합니다.
+
+역할	참여 주체	담당 기능	협력 형태
+아키텍처 설계자	KorPIX 팀	전체 설계 · 표준 정의 · 조율	주관
+보안 모듈	보안 기업 (파트너)	PQC 인증 · TPM 연동 · 위협 탐지	기술 협력
+결제 연동	핀테크 / 전자결제사	결제 API 제공 · 거래 처리	API 파트너
+클라우드 인프라	클라우드 기업	Audit Network 노드 운영	인프라 제공
+테스트 참가자	일반 사용자 30명	실제 결제 시나리오 테스트	파일럿 참여
+감독 기관	금융위 / KISA	규제 샌드박스 승인 · 감독	제도 지원
+
+
+8. 파일럿 추진 일정
+
+주차	기간	주요 작업	산출물
+1주차	환경 구성	개발 환경 세팅, 테스트 참가자 모집, API 연동 준비	테스트 환경 구축 완료 보고서
+2주차	기능 구현	Trust Terminal 에뮬레이터, Policy Engine 기본 룰셋 구현	모듈별 단위 테스트 결과
+3주차	통합 테스트	전체 플로우 통합, 사용자 시나리오 10종 검증	통합 테스트 결과 보고서
+4주차	파일럿 운영	실제 소액 결제 테스트 (가상 환경), KPI 측정	파일럿 운영 결과 + KPI 달성 보고서
+
+
+9. 파일럿 이후 다음 단계
+
+UC-001 파일럿 성공을 기반으로 다음 유스케이스로 확장합니다.
+
+1.	UC-002 · AI 투자 자동화 파일럿 — 소액 ETF 자동 매수 (Policy Engine 확장)
+2.	UC-003 · AI 기업 구매 승인 자동화 파일럿 — ERP 연동 + 내부 승인 플로우
+3.	UC-004 · AI 행정 서비스 자동화 파일럿 — 공과금 납부 + 공공 API 연동
+4.	UC-005 · AI Node PC 단말 탑재 파일럿 — 소프트웨어 에뮬레이터 → 하드웨어 Trust Terminal 전환
+
+각 유스케이스는 이 문서(UC-001)와 동일한 구조(개요 · 시나리오 · 구현 명세 · KPI · 리스크 · 일정)로 작성하며, 컨소시엄 참여사에게 표준 사업 문서로 배포합니다.
+
+
+이 문서는 KorPIX 아키텍처 백서의 21. Implementation Roadmap · 4단계 파일럿 프로젝트를 구체화한 파일럿 계획서입니다.
