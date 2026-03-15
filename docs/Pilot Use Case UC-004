@@ -1,0 +1,355 @@
+KorPIX
+파일럿 프로젝트 유스케이스
+AI 행정 서비스 자동화 파일럿
+Pilot Use Case UC-004
+Version 0.1  ·  2026년 초안  ·  UC-001~003 파일럿 성공 기반
+ 
+1. 유스케이스 개요
+
+UC ID	UC-004 · AI 행정 서비스 자동화 파일럿
+전제 조건	UC-001 AI 자동 결제 파일럿 KPI 달성 완료 (UC-002·003 병행 가능)
+분류	공공 민원 자동 신청 · 세금·공과금 자동 납부 · 복지 서비스 신청 보조
+목적	공공 API(정부24·행안부·국세청) 연동 + 개인정보 보호 정책 하에서 KorPIX 행정 행동 신뢰 검증
+파일럿 기간	8주 (2개월) · 정부24 공공 API Sandbox 환경 적용
+참여 규모	일반 시민 참가자 40명 · 연령대 다양성 확보 (20대~60대)
+핵심 공공 API	정부24 API · 행정안전부 · 국민건강보험 · 지방세 납부 API
+핵심 규제	개인정보보호법 · 전자정부법 · 행정업무운영 규정 적용
+
+UC-004는 KorPIX 파일럿 시리즈 중 처음으로 공공 영역에 진입하는 파일럿입니다. 시민이 AI 에이전트에게 '이번 달 공과금 납부하고 주민등록등본 한 장 떼줘'라고 말하면, 에이전트가 본인 인증부터 신청·납부·문서 수신까지 전 과정을 처리하는 구조를 검증합니다.
+UC-001~003이 민간(개인 결제·투자·기업 구매)을 다뤘다면, UC-004는 공공 서비스라는 전혀 다른 환경에서 KorPIX가 동작하는지를 확인합니다. 공공 영역에서 추가되는 가장 중요한 요소는 두 가지입니다. 개인정보 보호 4등급 분류 체계와, 정부 공공 API의 표준 인터페이스 연동입니다.
+
+UC-004 핵심 차별점 — 공공 행정 서비스는 '투명성'과 '국민 신뢰'가 최우선입니다. AI가 시민을 대신해 행동하더라도 시민이 언제든 전체 행동 기록을 조회·확인할 수 있어야 하며, 개인정보는 최소 수집·즉시 삭제 원칙이 적용됩니다.
+
+
+2. 문제 정의 및 해결 목표
+
+2.1 현재 행정 서비스 자동화의 구조적 문제
+
+•	반복 처리 부담 — 매월 동일한 공과금 납부, 분기마다 반복되는 민원 서류 발급을 시민이 직접 수행
+•	디지털 소외 계층 — 고령층·장애인이 온라인 행정 서비스 이용에 어려움을 겪어 직접 방문 처리 불가피
+•	개인정보 과다 요구 — 단순 서비스 이용에도 주민등록번호·계좌정보 등을 반복 입력해야 하는 구조
+•	행동 기록 부재 — AI 또는 대리인이 행정 서비스를 이용할 때 어떤 권한으로 무엇을 했는지 확인 불가
+•	공공 API 분산 — 정부24·국민건강보험·지방세 등 기관별로 API가 파편화되어 통합 자동화가 어려움
+•	대리 행동 신뢰 부재 — 가족이나 보호자가 대신 신청할 때 위임 관계를 시스템이 검증하는 구조 없음
+
+2.2 KorPIX UC-004가 제시하는 해결 구조
+
+•	공공 API 통합 게이트웨이 — KorPIX가 정부24·행안부·국건보 API를 단일 인터페이스로 연결, AI 에이전트가 기관별 차이를 몰라도 동작
+•	개인정보 4등급 분류 체계 — 행정 데이터를 등급별로 분류하여, 고민감 정보는 로컬 처리 전용·외부 전송 차단
+•	위임 관계 검증 — 가족·보호자가 대신 신청할 때 Trust Terminal이 위임 관계를 디지털 서명으로 검증
+•	시민 감사 조회권 — Audit Query System에서 시민이 자신의 AI 행동 이력 전체를 언제든 조회 가능
+•	접근성 우선 설계 — 고령층·장애인을 위한 음성 인터페이스와 간소화된 확인 절차 지원
+
+
+3. 행정 서비스 분류 및 자동화 범위
+
+UC-004는 모든 행정 서비스를 자동화하는 것이 목표가 아닙니다. 자동화 적합도가 높고 반복성이 있는 서비스를 먼저 검증하고, 복잡한 서비스는 보조형(AI가 서류 작성을 돕고 사람이 최종 제출)으로 설계합니다.
+
+서비스 유형	대표 서비스	자동화 적합도	KorPIX 적용 포인트
+민원 신청	주민등록등본 · 가족관계증명서 · 건강보험료 납부확인서	매우 높음	본인 인증 → 자동 신청 → 즉시 발급 문서 수신
+세금·공과금	지방세 · 자동차세 · 전기·가스·수도요금	높음	납부 기한 감지 → Policy 검증 → 자동 납부
+복지 신청	기초생활수급 · 장애인 급여 · 아동수당	중간	자격 조건 자동 확인 → 서류 준비 → 신청 보조
+예약·접수	병원 예약 · 공공시설 예약 · 차량 검사	높음	일정 확인 → 최적 시간대 자동 예약 실행
+서류 처리	각종 인허가 신청 · 건축 신고 · 사업자 등록	낮음	서류 작성 보조 + 검토 후 사람이 제출 (보조형)
+
+이번 파일럿은 자동화 적합도 '높음' 이상인 민원 신청·세금공과금·예약접수 세 영역에 집중합니다. 복지 신청과 인허가는 보조형으로만 검증하며 완전 자동화는 다음 단계에서 별도 검토합니다.
+
+
+4. 개인정보 보호 등급 체계
+
+행정 서비스는 타 UC보다 훨씬 민감한 개인정보를 다룹니다. KorPIX Policy Engine은 행정 행동 요청에 포함된 데이터를 아래 4등급으로 분류하여 처리 방식을 결정합니다.
+
+보호 등급	해당 데이터	처리 방식	KorPIX 제어
+등급 1 — 일반	이름 · 주소 · 납부 금액	Trust Terminal 로컬 처리	Auto Approve 가능
+등급 2 — 민감	주민등록번호 · 계좌번호	암호화 전송 + 즉시 삭제	User Confirm 필수
+등급 3 — 고민감	건강정보 · 복지 수급 이력	로컬 처리 전용 · 외부 전송 금지	Admin Approve + 암호화
+등급 4 — 최고민감	생체정보 · 범죄 이력	처리 불가 — Policy Engine DENY	DENY (자동 차단)
+
+개인정보 최소 수집 원칙 — AI 에이전트는 행정 서비스 처리에 필요한 최소한의 데이터만 요청합니다. 주민등록번호는 본인 인증 후 즉시 폐기하고, 해시값만 Audit Record에 저장합니다. 원본 개인정보는 KorPIX 감사 네트워크에 저장되지 않습니다.
+
+
+5. 파일럿 시나리오 상세
+
+UC-004는 총 5개 시나리오로 구성됩니다. 공과금 자동 납부, 민원 서류 자동 발급, 복지 서비스 신청 보조, 가족 위임 대리 신청, 이상 행동 탐지·차단이 각각 검증됩니다.
+
+5.1 기본 시나리오 — 세금·공과금 자동 납부
+매월 반복되는 지방세·전기요금·가스요금을 AI 에이전트가 납부 기한 전 자동으로 처리합니다. UC-001 결제 플로우를 공공 영역에 적용한 확장 버전입니다.
+
+단계	행위자	행동 내용	관여 시스템
+G01	AI Agent	납부 기한 캘린더 모니터링 → 지방세 납부 기한 D-3 감지 (납부액 87,500원)	Public Service Monitor
+G02	Trust Terminal	행정 행동 시작 전 사용자 신원 인증 (공동인증서 또는 PASS 간편인증)	eGov Auth Module
+G03	AI Agent	지방세 납부 API 호출 → 납부 금액·계좌·기한 정보 조회	지방세 납부 API
+G04	Policy Engine	Risk Score 계산 (공과금 유형·금액·납부 패턴) → 18점 → Auto Approve	Civic Risk Evaluator
+G05	Execution System	지방세 납부 API → 자동이체 실행 → 납부 영수증 발급 요청	공공 결제 게이트웨이
+G06	Audit Network	납부 Action Record 생성 (개인정보 해시만 포함, 원본 미저장) → 해시 체인 저장	Audit Network
+G07	사용자	납부 완료 알림 수신 · 영수증 저장 · 행동 기록 조회 가능	Audit Query System
+
+5.2 기본 시나리오 — 민원 서류 자동 발급
+주민등록등본·가족관계증명서 등 자주 사용되는 민원 서류를 AI가 자동으로 발급 신청하고 수신합니다. 정부24 API를 직접 연동합니다.
+
+단계	행위자	행동 내용	관여 시스템
+D01	사용자	'주민등록등본 1부 발급해줘' 음성·텍스트 지시 입력	Trust Terminal / UI
+D02	Trust Terminal	사용자 신원 인증 (공동인증서) → 발급 목적 확인 (개인용·제출용 구분)	eGov Auth Module
+D03	Policy Engine	개인정보 등급 2 확인 → User Confirm 필수 → 발급 목적·제출처 사용자 확인 요청	Civic Risk Evaluator
+D04	사용자	발급 목적 확인 및 최종 동의 → Trust Terminal 서명	Trust Terminal / UI
+D05	AI Agent	정부24 민원 발급 API 호출 → 주민등록등본 온라인 발급 신청	정부24 API
+D06	Execution System	정부24로부터 전자문서 수신 → 암호화 저장 → 사용자 전달	eDoc Receiver
+D07	Audit Network	발급 신청·수신 기록 저장 (주민번호 해시만 포함) → 5년 보존 플래그	Audit Network
+
+5.3 예외 시나리오 — 복지 서비스 신청 보조 (반자동)
+복지 서비스는 자격 조건이 복잡하고 개인정보 민감도가 높아 완전 자동화 대신 AI 보조형으로 설계합니다. AI가 서류를 준비하고 사람이 최종 제출합니다.
+
+단계	행위자	행동 내용	관여 시스템
+W01	사용자	'아동수당 신청 도와줘' 요청 입력	Trust Terminal / UI
+W02	AI Agent	복지로 API 조회 → 아동수당 지급 자격 조건 확인 (아동 연령·소득 기준)	복지로 API
+W03	Policy Engine	개인정보 등급 3(건강·복지 이력) → 로컬 처리 전용 모드 강제 적용 · 외부 전송 차단	Privacy Guard
+W04	AI Agent	자격 조건 자동 점검 → 필요 서류 목록 생성 → 서류 초안 자동 작성 (가족관계증명서·통장 사본 등)	Document Assistant
+W05	사용자	AI 작성 서류 검토 → 내용 확인·수정 → 최종 제출 여부 직접 결정	Trust Terminal / UI
+W06	사용자	사용자가 직접 복지로 또는 주민센터 방문 제출 (AI는 여기서 행동 종료)	외부 (복지로 / 주민센터)
+W07	Audit Network	AI 보조 행동 전 과정 기록 (자격 점검 결과·서류 작성 이력) · 개인정보 원본 미저장	Audit Network
+
+5.4 예외 시나리오 — 가족 위임 대리 신청
+고령 부모님을 대신해 자녀가 AI 에이전트로 행정 서비스를 처리할 때, Trust Terminal이 위임 관계를 검증하는 시나리오입니다.
+
+단계	행위자	행동 내용	관여 시스템
+P01	자녀(대리인)	'어머니 전기요금 납부해줘' 요청 → 대리 행동 플래그 자동 감지	Trust Terminal / UI
+P02	Trust Terminal	대리 행동 플래그 감지 → 위임 관계 검증 절차 시작	Delegation Verifier
+P03	Trust Terminal	전자 위임장 확인 또는 실시간 본인 인증 요청 (어머니 PASS 간편인증 또는 사전 등록 위임)	eGov Auth Module
+P04	어머니(본인)	모바일로 위임 동의 인증 완료 (또는 사전 등록 위임 유효성 확인)	Trust Terminal / Mobile
+P05	Policy Engine	위임 관계 검증 완료 → Risk Score 계산 → User Confirm → 대리 납부 허용 결정	Civic Risk Evaluator
+P06	Execution System	어머니 명의 전기요금 납부 실행 → 영수증 어머니·자녀 양쪽 전달	공공 결제 게이트웨이
+P07	Audit Network	대리 행동 기록 저장 — 위임 관계·위임 동의 시각·대리인 ID·본인 ID 모두 포함	Audit Network
+
+위임 없는 대리 시도 차단 — 위임 관계가 검증되지 않은 상태에서 타인 명의 행정 서비스를 시도하면 Policy Engine이 즉시 DENY를 반환하고 시도 이벤트를 Audit Network에 기록합니다. 이 기록은 개인정보 침해 대응 근거로 활용될 수 있습니다.
+
+5.5 예외 시나리오 — 이상 행동 탐지 및 차단
+짧은 시간에 다수 행정 서비스 접근을 시도하거나, 개인정보 등급 4 데이터 접근을 요청하는 비정상 패턴을 Policy Engine이 탐지합니다.
+
+단계	행위자	행동 내용	관여 시스템
+A01	AI Agent	10분 내 7개 기관 행정 API 동시 접근 시도 (비정상 접근 빈도)	AI Agent Runtime
+A02	Policy Engine	접근 패턴 분석 → 비정상 빈도 감지 → Risk Score 88 → DENY 결정	Behavior Monitor
+A03	Policy Engine	전체 행정 행동 즉시 차단 · 사용자에게 보안 경고 알림 발송	Action Blocker
+A04	사용자	보안 경고 확인 → 재인증 후 행동 재개 또는 관리자 문의	Trust Terminal / UI
+A05	Audit Network	이상 행동 탐지 이벤트 전체 기록 → 개인정보 침해 대응 자료로 보존	Audit Network
+
+
+6. 기술 구현 명세
+
+6.1 행정 특화 Action Record 데이터 구조
+UC-001 기본 ActionRecord를 상속하고 공공 행정에 특화된 개인정보 보호 필드와 위임 관계 필드를 추가합니다. 핵심 원칙은 개인정보 원본 미저장입니다.
+
+// CivicActionRecord — UC-001 ActionRecord 행정 서비스 확장 (TypeScript)
+interface CivicActionRecord extends ActionRecord {
+  actionType: 'CIVIC_SERVICE';
+
+  payload: {
+    serviceCode:   string;   // 'LOCAL_TAX' | 'DOC_ISSUANCE' | 'WELFARE' | ...
+    serviceName:   string;   // 서비스명 (지방세 납부, 주민등록등본 발급 등)
+    agencyCode:    string;   // 기관 코드 (GOV24 · MOHW · NHI · ...)
+    amount:        number | null;  // 납부 금액 (해당 없으면 null)
+    documentType:  string | null;  // 발급 서류 유형
+  };
+
+  // 개인정보 보호 — 원본 미저장, 해시만 보존
+  privacyFields: {
+    subjectIdHash:     string;   // 주민번호 SHA-256 해시 (원본 절대 미저장)
+    privacyGrade:      1 | 2 | 3 | 4;  // 처리한 개인정보 최고 등급
+    dataRetentionDays: number;   // 원본 데이터 보존 기간 (0 = 즉시 삭제)
+    localProcessOnly:  boolean;  // true이면 외부 전송 없이 로컬 처리
+  };
+
+  // 위임 관계 (대리 행동 시에만 사용)
+  delegation?: {
+    isDelegated:      boolean;
+    principalIdHash:  string;   // 본인 ID 해시
+    delegateIdHash:   string;   // 대리인 ID 해시
+    delegationSig:    string;   // 본인 위임 동의 디지털 서명
+    delegationExpiry: string;   // 위임 만료 시각 (ISO 8601)
+  };
+
+  // 공공 API 응답 (영수증 번호 등 비개인정보만)
+  publicApiResult: {
+    receiptNumber: string | null;
+    status:        'SUCCESS' | 'FAILED' | 'PENDING';
+    agencyTimestamp: string;
+  };
+}
+
+6.2 행정 특화 Policy Engine — Civic Risk Evaluator
+행정 서비스는 금액보다 '개인정보 등급'과 '위임 관계 유효성'이 핵심 제어 변수입니다.
+
+# Civic Risk Evaluator — 행정 서비스 특화 Risk Score (Python)
+class CivicRiskEvaluator:
+
+    SERVICE_BASE_RISK = {
+        'LOCAL_TAX':      10,  # 지방세 납부 — 저위험
+        'UTILITY':        10,  # 공과금 납부 — 저위험
+        'DOC_ISSUANCE':   25,  # 서류 발급 — 중간 (주민번호 사용)
+        'WELFARE':        40,  # 복지 신청 — 고위험 (건강정보)
+        'RESERVATION':    15,  # 공공 예약 — 저위험
+        'PERMIT':         50,  # 인허가 신청 — 고위험
+    }
+
+    def calculate(self, req: CivicActionRequest) -> int:
+        score = self.SERVICE_BASE_RISK.get(req.serviceCode, 30)
+
+        # 1. 개인정보 등급 가중치
+        privacy_grade = self._assess_privacy_grade(req)
+        if   privacy_grade == 1: score += 0
+        elif privacy_grade == 2: score += 15
+        elif privacy_grade == 3: score += 30
+        elif privacy_grade == 4: return Decision.DENY  # 최고민감 → 즉시 차단
+
+        # 2. 대리 행동 검증
+        if req.isDelegated:
+            if not self._verify_delegation(req):
+                return Decision.DENY   # 위임 관계 미검증 → 차단
+            score += 20  # 대리 행동 자체 가중치
+
+        # 3. 접근 빈도 이상 탐지 (10분 내 5회 이상)
+        if access_log.get_count(req.userId, minutes=10) >= 5:
+            score += 50  # 비정상 패턴 → DENY 방향
+
+        # 4. 납부 금액 (공과금 한도 초과 여부)
+        if req.amount and req.amount > user_policy.civic_payment_limit:
+            score += 25
+
+        # 최종 결정
+        if score <= 20: return Decision.AUTO_APPROVE   # 자동 처리
+        if score <= 45: return Decision.USER_CONFIRM   # 사용자 확인
+        if score <= 70: return Decision.ADMIN_CONFIRM  # 관리자 확인
+        return          Decision.DENY                  # 차단
+
+    def _verify_delegation(self, req) -> bool:
+        # 위임 서명 유효성 + 만료 시각 + 위임 범위 일치 확인
+        return (delegation_store.verify_sig(req.delegation.sig)
+                and req.delegation.expiry > now()
+                and req.serviceCode in req.delegation.allowedServices)
+
+6.3 공공 API 통합 게이트웨이
+기관별로 파편화된 공공 API를 KorPIX가 단일 인터페이스로 추상화합니다. AI 에이전트는 기관별 API 차이를 알 필요 없이 서비스 코드만 전달합니다.
+
+# 공공 API 통합 게이트웨이 — 기관별 API 추상화 (Python)
+class PublicServiceGateway:
+
+    ADAPTERS = {
+        'GOV24':    Gov24Adapter(),    # 정부24 — 민원 발급
+        'NHI':      NHIAdapter(),      # 국민건강보험
+        'MOHW':     MOHWAdapter(),     # 보건복지부 — 복지로
+        'LOCALEX':  LocalTaxAdapter(), # 지방세 납부
+        'KEPCO':    KEPCOAdapter(),    # 한국전력
+        'KOGAS':    KOGASAdapter(),    # 한국가스공사
+    }
+
+    def execute(self, req: CivicActionRequest,
+                auth_token: str) -> PublicApiResult:
+
+        adapter = self.ADAPTERS.get(req.agencyCode)
+        if not adapter:
+            raise UnsupportedAgency(f'{req.agencyCode} 미연동 기관')
+
+        # 모든 어댑터는 동일한 인터페이스 구현
+        result = adapter.call(
+            service_code = req.serviceCode,
+            payload      = self._build_payload(req),
+            auth_token   = auth_token,  # 기관별 인증 토큰
+        )
+
+        # 응답 표준화 (기관별 응답 형식 통일)
+        return PublicApiResult(
+            success      = result.is_ok(),
+            receiptNumber= result.get('receipt_no') or result.get('접수번호'),
+            rawResponse  = result.sanitized(),  # 개인정보 제거 후 저장
+        )
+
+    def _build_payload(self, req) -> dict:
+        # 개인정보 최소 전송 원칙 — 꼭 필요한 필드만 포함
+        base = { 'service_code': req.serviceCode }
+        if req.amount:        base['amount']    = req.amount
+        if req.documentType:  base['doc_type']  = req.documentType
+        # 주민번호는 인증 토큰으로 대체, 직접 전송 금지
+        return base
+
+
+7. UC 시리즈 Policy Engine 누적 진화
+
+UC-004는 앞선 세 파일럿의 구조를 계승하면서 공공 영역에 특화된 개인정보 보호와 공공 API 연동을 새롭게 추가합니다.
+
+구분	UC-001 결제	UC-002 투자	UC-003 구매	UC-004 행정	UC-004 핵심 추가
+Risk 요소	금액·한도	+ VIX·손실율	+ 예산·품목·조직	+ 개인정보등급·위임·접근빈도	개인정보 등급 체계
+승인 구조	1단계	1단계	5티어 다단계	서비스 유형별 분기	보조형(반자동) 추가
+외부 시스템	결제 API	증권 API	ERP API	공공 API (정부24 등 6종)	공공 기관 통합 게이트웨이
+개인정보	최소 수준	금융정보	임직원 정보	주민번호·건강정보 4등급 분류	등급별 처리 방식 강제화
+대리 행동	없음	없음	없음	가족 위임 디지털 검증	위임 관계 서명 체계
+감사 특이점	기본 기록	전략 근거 해시	결재 체인 연결	개인정보 해시만 저장 (원본 삭제)	프라이버시 보존 감사
+
+
+8. KPI 및 성공 기준
+
+KPI 지표	목표치	측정 방법	비고
+공과금 자동 납부 성공률	97% 이상	납부 결과 로그	공공 API 오류 제외
+민원 서류 발급 성공률	95% 이상	발급 완료 건수	정부24 API 기준
+개인정보 원본 미저장 준수율	100%	Audit Record 스캔	주민번호 원본 0건
+위임 없는 대리 시도 차단율	100%	위임 미검증 차단 전수	단 1건도 누락 불허
+이상 접근 패턴 탐지율	95% 이상	테스트 시나리오 통과율	사전 설계 10개 패턴
+감사 기록 무결성	100%	해시 체인 검증	변조 0건
+평균 처리 시간	기존 대비 70% 단축	Timestamp 측정	기존 직접 처리 대비
+고령층 사용 성공률	85% 이상	60대 이상 참가자 기준	접근성 검증
+시민 감사 조회 만족도	4.3 / 5.0 이상	내 기록 조회 후 설문	투명성 체감 측정
+
+
+9. 리스크 및 대응 방안
+
+리스크 항목	발생 가능성	영향도	대응 방안
+공공 API Sandbox 미제공	중간	높음	정부24·행안부 Sandbox 사전 신청 · 미제공 시 Mock API로 대체 검증
+전자정부법 준수 미확인	중간	매우 높음	행안부·KISA 사전 법률 검토 의무화 · 파일럿 시작 전 완료
+주민번호 해시 역산 위험	매우 낮음	매우 높음	주민번호 + Salt 해시 · Pepper 추가 적용 · 원본 즉시 삭제
+위임 서명 위조 시도	낮음	매우 높음	공동인증서 기반 위임 서명 · PASS 앱 실시간 동의 확인 연동
+공공 API 응답 지연	높음	중간	비동기 처리 · 타임아웃 30초 · 재시도 3회 후 수동 안내
+개인정보 등급 오분류	중간	높음	서비스 코드 기반 등급 자동 매핑 · 분기별 등급 테이블 갱신
+고령층 인증 실패율 증가	중간	중간	간편인증(PASS) 우선 제공 · 인증 실패 시 보조 인증 경로 안내
+
+
+10. 참여 주체 및 역할
+
+역할	참여 주체	담당 기능	협력 형태
+아키텍처 설계자	KorPIX 팀	행정 특화 Policy Engine · 공공 API 게이트웨이 설계	주관
+공공 API 연동	NIA (한국정보화진흥원)	정부24 · 행안부 Sandbox API 접근 권한 협의	공공 협력
+법적 검토	행정안전부 · KISA	전자정부법·개인정보보호법 준수 확인 · 파일럿 승인	제도 지원
+인증 연동	PASS / 카카오	간편인증 API 제공 · 위임 동의 연동	API 파트너
+보안 모듈	보안 기업	개인정보 해시 처리 · PQC 서명 · 감사 무결성 검증	기술 협력
+접근성 검토	장애인·고령층 단체	UI/UX 접근성 검증 · 음성 인터페이스 테스트	자문
+테스트 참가자	일반 시민 40명	20대~60대 연령 분포 · 5개 시나리오 테스트 · 설문	파일럿 참여
+
+
+11. 파일럿 추진 일정 (8주)
+
+주차	기간	주요 작업	산출물
+1주차	사전 준비	행안부·KISA 법적 검토 의뢰 · 정부24 Sandbox API 신청 · 참가자 모집	법적 검토 의뢰서 · API 신청서
+2주차	환경 구성	공공 API Sandbox 연동 · Mock API 구성 · 개인정보 처리 방침 확정	공공 API 연동 환경 구축 보고서
+3주차	정책 구현	Civic Risk Evaluator · 개인정보 4등급 분류 로직 · 위임 검증 모듈 개발	행정 특화 Policy Engine
+4주차	API 게이트웨이	공공 API 통합 게이트웨이 6종 어댑터 구현 · 응답 표준화 처리	공공 API 게이트웨이 모듈
+5주차	기록 시스템	CivicActionRecord 구현 · 개인정보 해시 처리 · 위임 기록 구조 구현	행정 감사 기록 모듈
+6주차	통합 테스트	5개 시나리오 전체 검증 · 개인정보 원본 미저장 확인 · 위임 차단 테스트	통합 테스트 결과 보고서
+7주차	파일럿 운영	시민 참가자 40명 실제 테스트 · 고령층 접근성 검증 · KPI 측정	파일럿 운영 일지
+8주차	결과 분석	KPI 달성 분석 · 개인정보 감사 검토 · 최종 보고서 · UC-005 계획 수립	파일럿 최종 결과 보고서
+
+
+12. 파일럿 이후 다음 단계
+
+UC-004 파일럿 성공을 기반으로 공공 영역 확장과 최종 하드웨어 전환을 동시에 추진합니다.
+
+공공 사업화 방향
+1.	행안부·과기부와 '디지털 정부 AI 에이전트 표준' 공동 연구 제안 — KorPIX를 국가 표준 후보로 등록
+2.	지자체 단위 공공 AI 서비스 시범 적용 — 1개 광역시 민원 자동화 파일럿 확대
+3.	디지털 취약계층 지원 사업화 — 고령층·장애인 대상 AI 행정 도우미 서비스 패키지
+
+기술 확장 방향
+4.	UC-005 · AI Node PC 하드웨어 Trust Terminal 전환 — 소프트 에뮬레이터 → 실제 TPM+PQC 탑재 단말 (사업계획서 핵심 단말기 구현 시작)
+5.	UC-004 심화 — 복지 서비스 완전 자동화 파일럿 (보조형 → 자동형 전환)
+6.	위임 관계 디지털화 표준 제안 — 가족 위임·법정 대리인 디지털 인증 표준 초안 작성
+
+UC-001~004 파일럿 시리즈를 완료하면 KorPIX는 개인 결제·금융 투자·기업 구매·공공 행정 네 영역에서 동작이 검증된 AI 행동 신뢰 인프라가 됩니다. 이 네 가지 검증 결과가 UC-005 하드웨어 Trust Terminal 개발과 컨소시엄 본격 구성을 위한 기술적 근거가 됩니다.
+
+
+이 문서는 KorPIX UC-001~003 파일럿 성공을 전제로 작성된 네 번째 파일럿 유스케이스 계획서입니다. UC-005(하드웨어 Trust Terminal)로 이어집니다.
