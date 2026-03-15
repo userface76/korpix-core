@@ -86,4 +86,13 @@ import type { ActionRecord } from './standards/action-record';
 
 ---
 
+
+## KorPIX vs 유사 프로젝트
+
+| | AgentBouncr | Microsoft AGT | KorPIX |
+| HW Trust Terminal | ❌ | ❌ | ✅ TPM+TEE |
+| 금융 규제 감사 | ❌ | ❌ | ✅ 자본시장법 |
+| 공공 API 연동 | ❌ | ❌ | ✅ 정부24 |
+| 국가 표준 목표 | ❌ | ❌ | ✅ KorPIX Standard |
+
 *KorPIX는 AI 자동화 시대의 행동 신뢰 표준을 목표로 합니다.*
