@@ -1,3 +1,125 @@
 Repository name:  korpix-core
 Description:      KorPIX AI 행동 신뢰 인프라 — 핵심 표준 명세
 Visibility:       Public  ← 컨소시엄 파트너에게 공개
+
+
+korpix-core/
+│
+├ README.md
+├ LICENSE
+├ ROADMAP.md
+├ CONTRIBUTING.md
+├ .gitignore
+├ pyproject.toml
+├ package.json
+├ tsconfig.json
+├ .env.example
+│
+├ whitepaper/
+│   └ KorPIX_Architecture_Whitepaper.md
+│
+├ standards/
+│   ├ KorPIX_Terminal_Standard.md
+│   ├ KorPIX_Policy_API.md
+│   └ KorPIX_Audit_Protocol.md
+│
+├ docs/
+│   ├ system_architecture.md
+│   ├ logical_model.md
+│   ├ ai_action_flow.md
+│   ├ security_model.md
+│   ├ use_cases.md
+│   └ architecture_diagram.md
+│
+├ schemas/
+│   ├ action_record.schema.json
+│   ├ action_request.schema.json
+│   ├ policy_decision.schema.json
+│   └ risk_score.schema.json
+│
+├ api/
+│   └ openapi.yaml
+│
+├ examples/
+│   ├ sample_action_request.json
+│   ├ sample_action_record.json
+│   └ sample_policy_rules.yaml
+│
+├ apps/
+│   ├ terminal-simulator/
+│   │   ├ package.json
+│   │   ├ src/
+│   │   │   ├ main.ts
+│   │   │   ├ ui.ts
+│   │   │   ├ auth.ts
+│   │   │   └ actionClient.ts
+│   │   └ public/
+│   │
+│   └ policy-dashboard/
+│       ├ package.json
+│       ├ src/
+│       │   ├ main.tsx
+│       │   ├ App.tsx
+│       │   ├ pages/
+│       │   └ components/
+│       └ public/
+│
+├ services/
+│   ├ policy-engine/
+│   │   ├ README.md
+│   │   ├ src/
+│   │   │   ├ main.py
+│   │   │   ├ engine.py
+│   │   │   ├ identity.py
+│   │   │   ├ permission.py
+│   │   │   ├ policy.py
+│   │   │   ├ risk.py
+│   │   │   ├ decision.py
+│   │   │   └ models.py
+│   │   └ tests/
+│   │
+│   ├ audit-network/
+│   │   ├ README.md
+│   │   ├ src/
+│   │   │   ├ main.py
+│   │   │   ├ logger.py
+│   │   │   ├ signer.py
+│   │   │   ├ hashchain.py
+│   │   │   ├ ledger.py
+│   │   │   └ query.py
+│   │   └ tests/
+│   │
+│   └ execution-gateway/
+│       ├ README.md
+│       ├ src/
+│       │   ├ main.py
+│       │   ├ gateway.py
+│       │   ├ handlers.py
+│       │   ├ connectors.py
+│       │   └ sandbox.py
+│       └ tests/
+│
+├ sdk/
+│   ├ python/
+│   │   └ korpix/
+│   │       ├ __init__.py
+│   │       ├ client.py
+│   │       ├ models.py
+│   │       └ auth.py
+│   │
+│   └ typescript/
+│       └ src/
+│           ├ index.ts
+│           ├ client.ts
+│           ├ models.ts
+│           └ auth.ts
+│
+├ tests/
+│   ├ integration/
+│   ├ unit/
+│   └ fixtures/
+│
+└ scripts/
+    ├ run_policy_engine.sh
+    ├ run_audit_network.sh
+    └ seed_examples.py
