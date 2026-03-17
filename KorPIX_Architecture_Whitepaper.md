@@ -1,30 +1,30 @@
 KorPIX Architecture Whitepaper
 AI 행동 신뢰 인프라 아키텍처
 
-1. 서론 Executive Summary	2
-2. Background: Agentic AI 시대	21
-3. Problem Statement	26
-4. KorPIX Architecture Overview	31
-5. KorPIX Trust Terminal	37
-6. Trust Terminal Architecture	40
-7. KorPIX Policy Engine	42
-8. Policy Engine Decision Flow	43
-9. Risk Evaluation Model	43
-10. KorPIX Audit Network	42
-11. Audit Network Architecture	43
-12. Action Record Data Structure	43
-13. Cryptographic Audit Model	42
-14. KorPIX Data Flow	43
-15. KorPIX Security Architecture	43
-16. System Integration	42
-17. Ecosystem Model	43
-18. Use Cases	43
-19. Governance Model	42
-20. Deployment Model	43
-21. Implementation Roadmap	43
-22. Future Expansion	44
-23. Strategic Impact	43
-24. Conclusion	44
+1. 서론 Executive Summary	
+2. Background: Agentic AI 시대	
+3. Problem Statement	
+4. KorPIX Architecture Overview	
+5. KorPIX Trust Terminal	
+6. Trust Terminal Architecture	
+7. KorPIX Policy Engine	
+8. Policy Engine Decision Flow	
+9. Risk Evaluation Model	
+10. KorPIX Audit Network	
+11. Audit Network Architecture	
+12. Action Record Data Structure	
+13. Cryptographic Audit Model	
+14. KorPIX Data Flow	
+15. KorPIX Security Architecture	
+16. System Integration	
+17. Ecosystem Model	
+18. Use Cases	
+19. Governance Model	
+20. Deployment Model	
+21. Implementation Roadmap	
+22. Future Expansion	
+23. Strategic Impact	
+24. Conclusion	
 
     
 1. 서론 :　Executive Summary
