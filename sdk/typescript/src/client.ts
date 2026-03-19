@@ -4,20 +4,20 @@
 import type {
   ActionRequest, PolicyResponse, KorPIXClientOptions
 } from './models';
- 
+
 export class KorPIXClient {
   private readonly terminalId: string;
   private readonly userId:     string;
   private readonly agentId:    string;
   private readonly baseUrl:    string;
- 
+
   constructor(options: KorPIXClientOptions) {
     this.terminalId = options.terminalId ?? 'term-001';
     this.userId     = options.userId     ?? 'user-hash-default';
     this.agentId    = options.agentId    ?? 'agent-001';
     this.baseUrl    = options.baseUrl.replace(/\/$/, '');
   }
- 
+
   /**
    * 행동 요청을 평가합니다.
    * Policy Engine REST API 호출 (POST /evaluate)
@@ -35,16 +35,16 @@ export class KorPIXClient {
         request_id:  request.requestId,
       }),
     });
- 
+
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(`KorPIX Policy Engine 오류 ${res.status}: ${JSON.stringify(err)}`);
     }
- 
+
     const data = await res.json();
     return this._mapResponse(data);
   }
- 
+
   /**
    * Audit Network에 감사 기록을 제출합니다.
    * Audit Gateway REST API 호출 (POST /submit)
@@ -63,7 +63,7 @@ export class KorPIXClient {
     const data = await res.json();
     return { success: data.success, status: data.status };
   }
- 
+
   private _mapResponse(data: Record<string, unknown>): PolicyResponse {
     return {
       decision:       data['decision']        as PolicyResponse['decision'],
@@ -77,4 +77,3 @@ export class KorPIXClient {
     };
   }
 }
- 

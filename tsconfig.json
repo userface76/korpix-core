@@ -11,12 +11,6 @@
     "sourceMap": true,
     "outDir": "./dist"
   },
-  "include": [
-    "sdk/typescript/src",
-    "apps/*/src"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["sdk/typescript/src", "apps/*/src"],
+  "exclude": ["node_modules", "dist"]
 }

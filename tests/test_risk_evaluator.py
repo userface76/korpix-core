@@ -14,7 +14,7 @@ import os
 import pytest
 
 # 경로 설정
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'policy-engine'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'policy_engine'))
 from risk_evaluator import (
     PolicyEngine, ActionRequest, ActionType, Decision,
     UserPolicy, build_action_record, verify_chain,

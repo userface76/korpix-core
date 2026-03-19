@@ -1,10 +1,10 @@
 # KorPIX 정책 룰셋 샘플 v0.1.0
 # Policy Engine이 참조하는 사용자/조직 정책 예시
- 
+
 version: "0.1.0"
 policy_id: "policy-demo-default"
 description: "KorPIX 기본 데모 정책"
- 
+
 # ── UC-001 결제 정책 ─────────────────────────────────────────────
 payment:
   monthly_limit: 1_000_000        # 월 결제 한도 (KRW)
@@ -12,7 +12,7 @@ payment:
   auto_approve_threshold: 50_000  # 이 금액 미만은 무조건 자동 승인
   require_2fa_above: 300_000      # 이 금액 이상은 2FA 필수
   blocked_merchants: []           # 차단 가맹점 목록
- 
+
 # ── UC-002 투자 정책 ─────────────────────────────────────────────
 investment:
   monthly_limit:         5_000_000  # 월 투자 한도 (KRW)
@@ -22,7 +22,7 @@ investment:
   circuit_breaker:
     vix_threshold:       35.0       # VIX 이 값 이상이면 서킷 브레이커
     kospi_drop_threshold: -0.05     # 코스피 -5% 이상 하락 시 서킷 브레이커
- 
+
 # ── UC-003 기업 구매 정책 ────────────────────────────────────────
 purchase:
   auto_approve_threshold:  1_000_000   # Tier 1 자동 승인 한도
@@ -35,7 +35,7 @@ purchase:
     urgent: 2     # 긴급 Fast-Track 타임아웃
     cfo:    48    # CFO 결재 타임아웃
   urgent_abuse_limit: 3     # 당월 긴급 구매 최대 횟수
- 
+
 # ── UC-004 행정 서비스 정책 ──────────────────────────────────────
 civic:
   payment_limit: 500_000   # 공과금 자동납부 한도
@@ -43,11 +43,10 @@ civic:
   require_delegation_verify: true  # 대리 행동 시 위임 검증 필수
   access_frequency:
     max_per_10min: 5        # 10분 내 최대 접근 횟수
- 
+
 # ── 공통 위험도 임계값 ────────────────────────────────────────────
 risk_thresholds:
   auto_approve:  30   # Risk Score 0~29  → AUTO_APPROVE
   user_confirm:  60   # Risk Score 30~59 → USER_CONFIRM
   admin_approve: 80   # Risk Score 60~79 → ADMIN_APPROVE
   deny:          80   # Risk Score 80+   → DENY
- 

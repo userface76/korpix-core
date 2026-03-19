@@ -1,7 +1,7 @@
 # KorPIX 아키텍처 다이어그램
- 
+
 ## 전체 시스템 다이어그램
- 
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                     KorPIX Trust Terminal                        │
@@ -35,9 +35,9 @@
 │ Approval    │      │ Gov API       │      │ AnomalyDetector │
 └─────────────┘      └───────────────┘      └─────────────────┘
 ```
- 
+
 ## Policy Engine Risk Score 흐름
- 
+
 ```
 ActionRequest
     │
@@ -64,13 +64,13 @@ ActionRequest
          ├─ 개인정보 등급4 → DENY 즉시
          ├─ 위임 미검증  → DENY 즉시
          └─ 납부 한도 초과 (+25)
- 
+
 → 합산 Risk Score (0~100)
 → 결정: AUTO_APPROVE / USER_CONFIRM / ADMIN_APPROVE / DENY
 ```
- 
+
 ## Audit Network 해시 체인
- 
+
 ```
 Genesis
 prevHash: "0000...0000" (64자리)
@@ -88,6 +88,6 @@ hash:     SHA256(record - hash - sig)
      │
      ▼
      ...
- 
+
 변조 탐지: 중간 레코드 수정 → 이후 prevHash 불일치 → 즉시 탐지
 ```

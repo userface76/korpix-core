@@ -1,10 +1,10 @@
 /**
  * KorPIX TypeScript SDK — 공개 데이터 모델 v0.1.0
  */
- 
+
 export type ActionType =
   | 'PAYMENT' | 'INVESTMENT' | 'PURCHASE_REQUEST' | 'CIVIC_SERVICE' | 'SYSTEM';
- 
+
 export const ActionType = {
   PAYMENT:          'PAYMENT'          as const,
   INVESTMENT:       'INVESTMENT'       as const,
@@ -12,10 +12,10 @@ export const ActionType = {
   CIVIC_SERVICE:    'CIVIC_SERVICE'    as const,
   SYSTEM:           'SYSTEM'           as const,
 };
- 
+
 export type PolicyDecision =
   | 'AUTO_APPROVE' | 'USER_CONFIRM' | 'ADMIN_APPROVE' | 'DENY';
- 
+
 export interface UserPolicy {
   monthlyPaymentLimit?: number;
   singlePaymentLimit?:  number;
@@ -23,14 +23,14 @@ export interface UserPolicy {
   maxLossRate?:         number;
   civicPaymentLimit?:   number;
 }
- 
+
 export interface ActionRequest {
   actionType:  ActionType;
   payload:     Record<string, unknown>;
   userPolicy?: UserPolicy;
   requestId?:  string;
 }
- 
+
 export interface PolicyResponse {
   decision:       PolicyDecision;
   riskScore:      number;
@@ -41,14 +41,14 @@ export interface PolicyResponse {
   notifyMessage?: string;
   requiresNotify: boolean;
 }
- 
+
 export interface ApprovalChain {
   chainId:     string;
   tier:        number;
   isFastTrack: boolean;
   steps:       ApprovalStep[];
 }
- 
+
 export interface ApprovalStep {
   stepId:     string;
   tier:       number;
@@ -58,7 +58,7 @@ export interface ApprovalStep {
   parallel:   boolean;
   timeoutSec: number;
 }
- 
+
 export interface KorPIXClientOptions {
   terminalId?: string;
   userId?:     string;
@@ -66,4 +66,3 @@ export interface KorPIXClientOptions {
   userPolicy?: UserPolicy;
   baseUrl:     string;
 }
- 

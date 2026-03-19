@@ -12,7 +12,7 @@ servers:
     description: Audit Network
   - url: http://localhost:8003
     description: Execution Gateway
- 
+
 tags:
   - name: policy
     description: Policy Engine — 행동 평가 및 승인 결정
@@ -20,9 +20,9 @@ tags:
     description: Audit Network — 감사 기록 관리
   - name: execution
     description: Execution Gateway — 외부 시스템 실행
- 
+
 paths:
- 
+
   # ── Policy Engine ─────────────────────────────────────
   /evaluate:
     post:
@@ -56,7 +56,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
- 
+
   /circuit-breaker/check:
     post:
       tags: [policy]
@@ -81,7 +81,7 @@ paths:
                 properties:
                   triggered: { type: boolean }
                   status:    { type: object }
- 
+
   /circuit-breaker/deactivate:
     post:
       tags: [policy]
@@ -101,7 +101,7 @@ paths:
                 properties:
                   success: { type: boolean }
                   status:  { type: object }
- 
+
   # ── Audit Network ─────────────────────────────────────
   /submit:
     post:
@@ -130,7 +130,7 @@ paths:
                   success:    { type: boolean }
                   error:      { type: string, nullable: true }
                   normalized: { type: object, nullable: true }
- 
+
   /query:
     post:
       tags: [audit]
@@ -159,7 +159,7 @@ paths:
                   total:     { type: integer }
                   page:      { type: integer }
                   page_size: { type: integer }
- 
+
   /integrity:
     get:
       tags: [audit]
@@ -175,7 +175,7 @@ paths:
                   is_valid:     { type: boolean }
                   broken_at:    { type: integer, nullable: true }
                   ledger_count: { type: integer }
- 
+
   /anomalies:
     get:
       tags: [audit]
@@ -196,7 +196,7 @@ paths:
                 properties:
                   events: { type: array, items: { type: object } }
                   total:  { type: integer }
- 
+
   /anomalies/{event_id}/resolve:
     post:
       tags: [audit]
@@ -217,7 +217,7 @@ paths:
                   resolved: { type: boolean }
         "404":
           description: 이벤트 없음
- 
+
   # ── Execution Gateway ─────────────────────────────────
   /execute:
     post:
@@ -252,7 +252,7 @@ paths:
                   response:      { type: object }
                   error_message: { type: string, nullable: true }
                   executed_at:   { type: string, format: date-time }
- 
+
   /health:
     get:
       tags: [policy, audit, execution]
@@ -267,10 +267,10 @@ paths:
                 properties:
                   status:  { type: string }
                   version: { type: string }
- 
+
 components:
   schemas:
- 
+
     EvaluateRequest:
       type: object
       required: [action_type, agent_id, user_id, terminal_id, payload]
@@ -283,7 +283,7 @@ components:
         user_id:     { type: string }
         terminal_id: { type: string }
         payload:     { type: object }
- 
+
     DecisionResult:
       type: object
       properties:
@@ -316,7 +316,7 @@ components:
                   timeout_sec: { type: integer }
         engine_version:  { type: string }
         decided_at:      { type: string, format: date-time }
- 
+
     ActionRecord:
       type: object
       required:
@@ -355,9 +355,8 @@ components:
         prevHash:         { type: string, pattern: "^[0-9a-f]{64}$" }
         hash:             { type: string, pattern: "^[0-9a-f]{64}$" }
         digitalSignature: { type: string }
- 
+
     Error:
       type: object
       properties:
         detail: { type: string }
- 

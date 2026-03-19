@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://korpix.io/schemas/action_request.schema.json",
+  "title": "ActionRequest",
+  "description": "KorPIX Policy Engine 행동 요청",
+  "type": "object",
+  "required": ["requestId","actionType","agentId","userId","terminalId","payload","userPolicy","timestamp"],
+  "properties": {
+    "requestId":   { "type": "string", "format": "uuid" },
+    "actionType":  { "type": "string", "enum": ["PAYMENT","INVESTMENT","PURCHASE_REQUEST","CIVIC_SERVICE","SYSTEM"] },
+    "agentId":     { "type": "string" },
+    "userId":      { "type": "string" },
+    "terminalId":  { "type": "string" },
+    "payload":     { "type": "object" },
+    "userPolicy":  { "type": "object" },
+    "timestamp":   { "type": "string", "format": "date-time" }
+  }
+}

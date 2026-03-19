@@ -14,9 +14,9 @@ import uuid
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__),
-                                '..', 'policy-engine'))
+                                '..', 'policy_engine'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__),
-                                '..', 'audit-network'))
+                                '..', 'audit_network'))
 
 from risk_evaluator import (
     PolicyEngine, ActionRequest, ActionType,

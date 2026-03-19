@@ -1,23 +1,23 @@
 {
   "_comment": "KorPIX ActionRecord 샘플 — 해시 체인 연결 포함",
-  "actionId": "f3a7c1d9-4b2e-4f8a-9c3d-1e5b7a2f4c8d",
-  "agentId": "agent-demo-001",
-  "userId": "a3f4c8e1b2d94f7a8c3e6b1d2f5a9c0e",
-  "terminalId": "term-demo-001",
-  "actionType": "PAYMENT",
+  "actionId":        "f3a7c1d9-4b2e-4f8a-9c3d-1e5b7a2f4c8d",
+  "agentId":         "agent-demo-001",
+  "userId":          "a3f4c8e1b2d94f7a8c3e6b1d2f5a9c0e",
+  "terminalId":      "term-demo-001",
+  "actionType":      "PAYMENT",
   "payload": {
-    "service": "netflix",
-    "amount": 17000,
-    "currency": "KRW",
-    "merchant": "Netflix Korea",
+    "service":      "netflix",
+    "amount":       17000,
+    "currency":     "KRW",
+    "merchant":     "Netflix Korea",
     "is_recurring": true
   },
-  "riskScore": 20,
-  "policyDecision": "AUTO_APPROVE",
+  "riskScore":       20,
+  "policyDecision":  "AUTO_APPROVE",
   "policyEngineVer": "0.1.0",
   "executionResult": "SUCCESS",
-  "timestamp": "2025-03-19T10:00:00+00:00",
-  "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
-  "hash": "3a7f2b9c1d4e8f5a6b0c2d4e6f8a1b3c5d7e9f0a2b4c6d8e0f2a4b6c8d0e2f4",
-  "digitalSignature": "7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b"
+  "timestamp":       "2025-03-19T10:00:00+00:00",
+  "prevHash":        "0000000000000000000000000000000000000000000000000000000000000000",
+  "hash":            "3a7f2b9c1d4e8f5a6b0c2d4e6f8a1b3c5d7e9f0a2b4c6d8e0f2a4b6c8d0e2f4",
+  "digitalSignature":"7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b"
 }
