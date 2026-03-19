@@ -19,129 +19,45 @@ KorPIX는 자율 행동형 AI(Agentic AI)가 실제 경제 활동을 수행할 �
 
 ## 파일 구조
 
-```
 korpix-core/
+├── README.md · ROADMAP.md · CONTRIBUTING.md · LICENSE
+├── .gitignore · .env.example · pyproject.toml · package.json · tsconfig.json
 │
-├ README.md
-├ LICENSE
-├ ROADMAP.md
-├ CONTRIBUTING.md
-├ .gitignore
-├ pyproject.toml
-├ package.json
-├ tsconfig.json
-├ .env.example
+├── whitepaper/
+│   └── KorPIX_Architecture_Whitepaper.md   ← 전체 아키텍처 백서
 │
-├ whitepaper/
-│   └ KorPIX_Architecture_Whitepaper.md
+├── standards/
+│   ├── KorPIX_Terminal_Standard.md          ← Trust Terminal 표준
+│   ├── KorPIX_Policy_API.md                 ← Policy Engine 표준
+│   └── KorPIX_Audit_Protocol.md             ← 감사 기록 표준
 │
-├ standards/
-│   ├ KorPIX_Terminal_Standard.md
-│   ├ KorPIX_Policy_API.md
-│   └ KorPIX_Audit_Protocol.md
+├── docs/  (6개 문서)
+│   ├── system_architecture.md
+│   ├── logical_model.md
+│   ├── ai_action_flow.md
+│   ├── security_model.md
+│   ├── use_cases.md
+│   └── architecture_diagram.md
 │
-├ docs/
-│   ├ system_architecture.md
-│   ├ logical_model.md
-│   ├ ai_action_flow.md
-│   ├ security_model.md
-│   ├ use_cases.md
-│   └ architecture_diagram.md
+├── schemas/  (4개 JSON Schema)
+├── api/openapi.yaml
+├── examples/  (샘플 3개)
 │
-├ schemas/
-│   ├ action_record.schema.json
-│   ├ action_request.schema.json
-│   ├ policy_decision.schema.json
-│   └ risk_score.schema.json
+├── services/
+│   ├── policy-engine/src/     models · risk · engine · decision · main
+│   ├── audit-network/src/     hashchain · ledger · gateway · main
+│   └── execution-gateway/src/ gateway · main
 │
-├ api/
-│   └ openapi.yaml
+├── sdk/
+│   ├── python/korpix/         __init__ · models · client
+│   └── typescript/src/        models · client · index
 │
-├ examples/
-│   ├ sample_action_request.json
-│   ├ sample_action_record.json
-│   └ sample_policy_rules.yaml
+├── apps/
+│   ├── terminal-simulator/    main · actionClient · auth (TypeScript)
+│   └── policy-dashboard/      App · Overview · ActionLog · Anomalies · CircuitBreaker (React)
 │
-├ apps/
-│   ├ terminal-simulator/
-│   │   ├ package.json
-│   │   ├ src/
-│   │   │   ├ main.ts
-│   │   │   ├ ui.ts
-│   │   │   ├ auth.ts
-│   │   │   └ actionClient.ts
-│   │   └ public/
-│   │
-│   └ policy-dashboard/
-│       ├ package.json
-│       ├ src/
-│       │   ├ main.tsx
-│       │   ├ App.tsx
-│       │   ├ pages/
-│       │   └ components/
-│       └ public/
-│
-├ services/
-│   ├ policy-engine/
-│   │   ├ README.md
-│   │   ├ src/
-│   │   │   ├ main.py
-│   │   │   ├ engine.py
-│   │   │   ├ identity.py
-│   │   │   ├ permission.py
-│   │   │   ├ policy.py
-│   │   │   ├ risk.py
-│   │   │   ├ decision.py
-│   │   │   └ models.py
-│   │   └ tests/
-│   │
-│   ├ audit-network/
-│   │   ├ README.md
-│   │   ├ src/
-│   │   │   ├ main.py
-│   │   │   ├ logger.py
-│   │   │   ├ signer.py
-│   │   │   ├ hashchain.py
-│   │   │   ├ ledger.py
-│   │   │   └ query.py
-│   │   └ tests/
-│   │
-│   └ execution-gateway/
-│       ├ README.md
-│       ├ src/
-│       │   ├ main.py
-│       │   ├ gateway.py
-│       │   ├ handlers.py
-│       │   ├ connectors.py
-│       │   └ sandbox.py
-│       └ tests/
-│
-├ sdk/
-│   ├ python/
-│   │   └ korpix/
-│   │       ├ __init__.py
-│   │       ├ client.py
-│   │       ├ models.py
-│   │       └ auth.py
-│   │
-│   └ typescript/
-│       └ src/
-│           ├ index.ts
-│           ├ client.ts
-│           ├ models.ts
-│           └ auth.ts
-│
-├ tests/
-│   ├ integration/
-│   ├ unit/
-│   └ fixtures/
-│
-└ scripts/
-    ├ run_policy_engine.sh
-    ├ run_audit_network.sh
-    └ seed_examples.py
-
----
+├── tests/integration/test_full_pipeline.py   ← 6/6 ALL PASSED ✅
+└── scripts/   run_policy_engine · run_audit_network · seed_examples
 
 ## 빠른 동작 확인
 
