@@ -1,6 +1,5 @@
 KorPIX Audit Protocol Standard v0.1
 감사 기록 프로토콜 표준 명세
-
 1. 개요
 KorPIX Audit Protocol은 AI 에이전트의 모든 행동을
 변조 불가능한 방식으로 기록·검증하는 표준입니다.
