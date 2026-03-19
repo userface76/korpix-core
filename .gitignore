@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+ 
+# Node
+node_modules/
+dist/
+.next/
+.nuxt/
+ 
+# 환경 설정
+.env
+.env.local
+*.secret
+ 
+# IDE
+.vscode/
+.idea/
+*.swp
+ 
+# OS
+.DS_Store
+Thumbs.db
+ 
+# 테스트 커버리지
+.coverage
+htmlcov/
+coverage/
+ 
+# 로그
+*.log
+logs/
+ 
