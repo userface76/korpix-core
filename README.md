@@ -1,3 +1,20 @@
+1. KorPIX란 무엇인가
+2. 핵심 문제 정의
+3. 시스템 아키텍처
+4. 주요 구성요소
+   - Policy Engine
+   - Audit Network
+   - Execution Gateway
+   - Terminal Simulator
+   - Policy Dashboard
+5. 빠른 시작
+6. 로컬 실행 방법
+7. API / Schema / Use Cases 링크
+8. 로드맵
+9. 기여 방법
+10. 라이선스
+
+
 # KorPIX Core
 
 > **AI 행동 신뢰 인프라 (AI Behavior Trust Infrastructure)**  
