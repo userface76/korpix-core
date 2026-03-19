@@ -30,7 +30,7 @@ class BaseRiskEvaluator(ABC):
         ...
  
  
-class PaymentEvaluator(BaseRiskEvaluator):
+class PaymentRiskEvaluator(BaseRiskEvaluator):
     def add_specific(self, req):
         score, details = 0, []
         amount = int(req.payload.get("amount", 0))
@@ -48,7 +48,7 @@ class PaymentEvaluator(BaseRiskEvaluator):
         return score, details
  
  
-class InvestmentEvaluator(BaseRiskEvaluator):
+class InvestmentRiskEvaluator(BaseRiskEvaluator):
     def add_specific(self, req):
         score, details = 0, []
         amount = int(req.payload.get("total_amount", 0))
@@ -65,7 +65,7 @@ class InvestmentEvaluator(BaseRiskEvaluator):
         return score, details
  
  
-class PurchaseEvaluator(BaseRiskEvaluator):
+class PurchaseRiskEvaluator(BaseRiskEvaluator):
     CATEGORY_RISK = {"CONSUMABLE":0,"SERVICE":10,"IT_EQUIPMENT":15,"ASSET":25}
     AMOUNT_TIERS  = [(1_000_000,0),(5_000_000,15),(20_000_000,35),(100_000_000,55)]
  
@@ -90,7 +90,7 @@ class PurchaseEvaluator(BaseRiskEvaluator):
         return score, details
  
  
-class CivicEvaluator(BaseRiskEvaluator):
+class CivicRiskEvaluator(BaseRiskEvaluator):
     SERVICE_BASE = {"LOCAL_TAX":10,"UTILITY":10,"DOC_ISSUANCE":25,"WELFARE":40,"RESERVATION":15}
  
     def add_specific(self, req):
