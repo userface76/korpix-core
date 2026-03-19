@@ -22,24 +22,124 @@ KorPIX는 자율 행동형 AI(Agentic AI)가 실제 경제 활동을 수행할 �
 ```
 korpix-core/
 │
-├── standards/                   ← KorPIX 공통 인터페이스 (TypeScript)
-│   ├── action-record.ts         ← ActionRecord 타입 (UC-001~004 전체)
-│   ├── policy-engine.ts         ← PolicyResult · RiskFactors 타입
-│   └── audit-network.ts         ← AuditBlock · AnomalyEvent 타입
+├ README.md
+├ LICENSE
+├ ROADMAP.md
+├ CONTRIBUTING.md
+├ .gitignore
+├ pyproject.toml
+├ package.json
+├ tsconfig.json
+├ .env.example
 │
-├── policy-engine/               ← Policy Engine 구현 (Python)
-│   └── risk-evaluator.py        ← Risk Score 계산 · 결정 로직
+├ whitepaper/
+│   └ KorPIX_Architecture_Whitepaper.md
 │
-├── audit-network/               ← Audit Network 구현 (Python)
-│   └── hash-chain.py            ← 해시 체인 생성 · 검증
+├ standards/
+│   ├ KorPIX_Terminal_Standard.md
+│   ├ KorPIX_Policy_API.md
+│   └ KorPIX_Audit_Protocol.md
 │
-└── docs/                        ← 파일럿 유스케이스 문서
-    ├── UC-001-payment.md
-    ├── UC-002-investment.md
-    ├── UC-003-purchase.md
-    ├── UC-004-civic.md
-    └── UC-005-hardware.md
-```
+├ docs/
+│   ├ system_architecture.md
+│   ├ logical_model.md
+│   ├ ai_action_flow.md
+│   ├ security_model.md
+│   ├ use_cases.md
+│   └ architecture_diagram.md
+│
+├ schemas/
+│   ├ action_record.schema.json
+│   ├ action_request.schema.json
+│   ├ policy_decision.schema.json
+│   └ risk_score.schema.json
+│
+├ api/
+│   └ openapi.yaml
+│
+├ examples/
+│   ├ sample_action_request.json
+│   ├ sample_action_record.json
+│   └ sample_policy_rules.yaml
+│
+├ apps/
+│   ├ terminal-simulator/
+│   │   ├ package.json
+│   │   ├ src/
+│   │   │   ├ main.ts
+│   │   │   ├ ui.ts
+│   │   │   ├ auth.ts
+│   │   │   └ actionClient.ts
+│   │   └ public/
+│   │
+│   └ policy-dashboard/
+│       ├ package.json
+│       ├ src/
+│       │   ├ main.tsx
+│       │   ├ App.tsx
+│       │   ├ pages/
+│       │   └ components/
+│       └ public/
+│
+├ services/
+│   ├ policy-engine/
+│   │   ├ README.md
+│   │   ├ src/
+│   │   │   ├ main.py
+│   │   │   ├ engine.py
+│   │   │   ├ identity.py
+│   │   │   ├ permission.py
+│   │   │   ├ policy.py
+│   │   │   ├ risk.py
+│   │   │   ├ decision.py
+│   │   │   └ models.py
+│   │   └ tests/
+│   │
+│   ├ audit-network/
+│   │   ├ README.md
+│   │   ├ src/
+│   │   │   ├ main.py
+│   │   │   ├ logger.py
+│   │   │   ├ signer.py
+│   │   │   ├ hashchain.py
+│   │   │   ├ ledger.py
+│   │   │   └ query.py
+│   │   └ tests/
+│   │
+│   └ execution-gateway/
+│       ├ README.md
+│       ├ src/
+│       │   ├ main.py
+│       │   ├ gateway.py
+│       │   ├ handlers.py
+│       │   ├ connectors.py
+│       │   └ sandbox.py
+│       └ tests/
+│
+├ sdk/
+│   ├ python/
+│   │   └ korpix/
+│   │       ├ __init__.py
+│   │       ├ client.py
+│   │       ├ models.py
+│   │       └ auth.py
+│   │
+│   └ typescript/
+│       └ src/
+│           ├ index.ts
+│           ├ client.ts
+│           ├ models.ts
+│           └ auth.ts
+│
+├ tests/
+│   ├ integration/
+│   ├ unit/
+│   └ fixtures/
+│
+└ scripts/
+    ├ run_policy_engine.sh
+    ├ run_audit_network.sh
+    └ seed_examples.py
 
 ---
 
