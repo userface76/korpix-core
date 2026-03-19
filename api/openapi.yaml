@@ -1,1 +1,363 @@
-
+openapi: "3.0.3"
+info:
+  title:       KorPIX API
+  version:     "0.1.0"
+  description: |
+    KorPIX AI 행동 신뢰 인프라 REST API.
+    Policy Engine(8001) · Audit Network(8002) · Execution Gateway(8003)
+servers:
+  - url: http://localhost:8001
+    description: Policy Engine
+  - url: http://localhost:8002
+    description: Audit Network
+  - url: http://localhost:8003
+    description: Execution Gateway
+ 
+tags:
+  - name: policy
+    description: Policy Engine — 행동 평가 및 승인 결정
+  - name: audit
+    description: Audit Network — 감사 기록 관리
+  - name: execution
+    description: Execution Gateway — 외부 시스템 실행
+ 
+paths:
+ 
+  # ── Policy Engine ─────────────────────────────────────
+  /evaluate:
+    post:
+      tags: [policy]
+      summary: AI 행동 요청 평가
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateRequest'
+            example:
+              action_type: PAYMENT
+              agent_id:    agent-001
+              user_id:     user-hash-abc
+              terminal_id: term-001
+              payload:
+                service: netflix
+                amount:  17000
+                currency: KRW
+      responses:
+        "200":
+          description: 평가 완료
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionResult'
+        "400":
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+ 
+  /circuit-breaker/check:
+    post:
+      tags: [policy]
+      summary: 서킷 브레이커 확인 및 발동
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vix, kospi_change]
+              properties:
+                vix:          { type: number, example: 37.5 }
+                kospi_change: { type: number, example: -0.062 }
+      responses:
+        "200":
+          description: 서킷 브레이커 상태
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  triggered: { type: boolean }
+                  status:    { type: object }
+ 
+  /circuit-breaker/deactivate:
+    post:
+      tags: [policy]
+      summary: 서킷 브레이커 수동 해제
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: 해제 결과
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  status:  { type: object }
+ 
+  # ── Audit Network ─────────────────────────────────────
+  /submit:
+    post:
+      tags: [audit]
+      summary: 감사 기록 제출
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action_record]
+              properties:
+                action_record:
+                  $ref: '#/components/schemas/ActionRecord'
+      responses:
+        "200":
+          description: 처리 결과
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  log_id:     { type: string }
+                  status:     { type: string }
+                  success:    { type: boolean }
+                  error:      { type: string, nullable: true }
+                  normalized: { type: object, nullable: true }
+ 
+  /query:
+    post:
+      tags: [audit]
+      summary: 감사 기록 조회
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id_hash:    { type: string }
+                action_type:     { type: string }
+                policy_decision: { type: string }
+                page:            { type: integer, default: 1 }
+                page_size:       { type: integer, default: 50 }
+      responses:
+        "200":
+          description: 조회 결과
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:   { type: array, items: { type: object } }
+                  total:     { type: integer }
+                  page:      { type: integer }
+                  page_size: { type: integer }
+ 
+  /integrity:
+    get:
+      tags: [audit]
+      summary: 해시 체인 무결성 검증
+      responses:
+        "200":
+          description: 무결성 결과
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  is_valid:     { type: boolean }
+                  broken_at:    { type: integer, nullable: true }
+                  ledger_count: { type: integer }
+ 
+  /anomalies:
+    get:
+      tags: [audit]
+      summary: 이상 탐지 이벤트 조회
+      parameters:
+        - in: query
+          name: severity
+          schema:
+            type: string
+            enum: [LOW, MEDIUM, HIGH, CRITICAL]
+      responses:
+        "200":
+          description: 이상 이벤트 목록
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events: { type: array, items: { type: object } }
+                  total:  { type: integer }
+ 
+  /anomalies/{event_id}/resolve:
+    post:
+      tags: [audit]
+      summary: 이상 이벤트 해제
+      parameters:
+        - in: path
+          name: event_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: 해제 결과
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resolved: { type: boolean }
+        "404":
+          description: 이벤트 없음
+ 
+  # ── Execution Gateway ─────────────────────────────────
+  /execute:
+    post:
+      tags: [execution]
+      summary: 승인된 행동 실행
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action_id, action_type, payload]
+              properties:
+                action_id:   { type: string }
+                action_type:
+                  type: string
+                  enum: [PAYMENT, INVESTMENT, PURCHASE_REQUEST, CIVIC_SERVICE]
+                payload:     { type: object }
+      responses:
+        "200":
+          description: 실행 결과
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exec_id:       { type: string }
+                  action_id:     { type: string }
+                  status:
+                    type: string
+                    enum: [SUCCESS, FAILED, PENDING]
+                  response:      { type: object }
+                  error_message: { type: string, nullable: true }
+                  executed_at:   { type: string, format: date-time }
+ 
+  /health:
+    get:
+      tags: [policy, audit, execution]
+      summary: 서비스 헬스 체크
+      responses:
+        "200":
+          description: 서비스 상태
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:  { type: string }
+                  version: { type: string }
+ 
+components:
+  schemas:
+ 
+    EvaluateRequest:
+      type: object
+      required: [action_type, agent_id, user_id, terminal_id, payload]
+      properties:
+        request_id:  { type: string, format: uuid }
+        action_type:
+          type: string
+          enum: [PAYMENT, INVESTMENT, PURCHASE_REQUEST, CIVIC_SERVICE, SYSTEM]
+        agent_id:    { type: string }
+        user_id:     { type: string }
+        terminal_id: { type: string }
+        payload:     { type: object }
+ 
+    DecisionResult:
+      type: object
+      properties:
+        result_id:       { type: string }
+        request_id:      { type: string }
+        decision:
+          type: string
+          enum: [AUTO_APPROVE, USER_CONFIRM, ADMIN_APPROVE, DENY]
+        risk_score:      { type: integer, minimum: 0, maximum: 100 }
+        reasons:         { type: array, items: { type: string } }
+        requires_notify: { type: boolean }
+        notify_message:  { type: string, nullable: true }
+        approval_chain:
+          nullable: true
+          type: object
+          properties:
+            chain_id:      { type: string }
+            tier:          { type: integer }
+            is_fast_track: { type: boolean }
+            steps:
+              type: array
+              items:
+                type: object
+                properties:
+                  step_id:     { type: string }
+                  approver_id: { type: string }
+                  role:        { type: string }
+                  status:      { type: string }
+                  parallel:    { type: boolean }
+                  timeout_sec: { type: integer }
+        engine_version:  { type: string }
+        decided_at:      { type: string, format: date-time }
+ 
+    ActionRecord:
+      type: object
+      required:
+        - actionId
+        - agentId
+        - userId
+        - terminalId
+        - actionType
+        - payload
+        - riskScore
+        - policyDecision
+        - executionResult
+        - timestamp
+        - prevHash
+        - hash
+        - digitalSignature
+      properties:
+        actionId:         { type: string, format: uuid }
+        agentId:          { type: string }
+        userId:           { type: string }
+        terminalId:       { type: string }
+        actionType:
+          type: string
+          enum: [PAYMENT, INVESTMENT, PURCHASE_REQUEST, CIVIC_SERVICE, SYSTEM]
+        payload:          { type: object }
+        riskScore:        { type: integer, minimum: 0, maximum: 100 }
+        policyDecision:
+          type: string
+          enum: [AUTO_APPROVE, USER_CONFIRM, ADMIN_APPROVE, DENY]
+        policyEngineVer:  { type: string }
+        executionResult:
+          type: string
+          enum: [SUCCESS, BLOCKED, PENDING, FAILED]
+        errorCode:        { type: string, nullable: true }
+        timestamp:        { type: string, format: date-time }
+        prevHash:         { type: string, pattern: "^[0-9a-f]{64}$" }
+        hash:             { type: string, pattern: "^[0-9a-f]{64}$" }
+        digitalSignature: { type: string }
+ 
+    Error:
+      type: object
+      properties:
+        detail: { type: string }
+ 
