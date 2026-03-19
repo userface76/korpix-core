@@ -1,0 +1,22 @@
+{
+  "name": "korpix-core",
+  "version": "0.1.0",
+  "description": "KorPIX AI Behavior Trust Infrastructure",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "sdk/typescript"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev": "npm run dev --workspaces",
+    "lint": "eslint . --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.4",
+    "eslint": "^9",
+    "@typescript-eslint/eslint-plugin": "^7",
+    "@typescript-eslint/parser": "^7"
+  }
+}
