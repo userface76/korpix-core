@@ -57,7 +57,19 @@ def compute_hash(record: dict) -> str:
     ).hexdigest()
 
 
+# 수정 — WARNING 명시 + 운영 환경 차단
+import os, warnings
+
 def soft_sign(value: str) -> str:
-    """소프트웨어 서명 — UC-005에서 TPM 서명으로 교체"""
-    import hashlib
+    """
+    ⚠️  개발/테스트 전용 서명. 운영 환경에서 절대 사용 금지.
+    운영: TPM AIK 서명 (UC-005) 또는 HSM 연동으로 교체 필수.
+    """
+    if os.getenv("TERMINAL_ENV", "development") == "production":
+        raise RuntimeError(
+            "soft_sign()은 운영 환경에서 사용할 수 없습니다. "
+            "SIGNING_MODE=tpm 설정 후 TPM 서명으로 교체하세요."
+        )
+    warnings.warn("soft_sign() — 개발용 서명, 운영에서 사용 금지", stacklevel=2)
     return hashlib.sha256(f"SOFT_SIG:{value}".encode()).hexdigest()
+    
