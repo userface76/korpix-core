@@ -9,7 +9,17 @@ from typing import Any, Optional
 
 from .gateway import AuditGateway, make_terminal_log
 
-app     = FastAPI(title="KorPIX Audit Network", version="0.3.0")
+import os
+ENV = os.getenv("TERMINAL_ENV", "development")
+
+app = FastAPI(
+    title="KorPIX Policy Engine",
+    version="0.1.0",
+    # 운영 환경에서 Swagger/ReDoc 비활성화
+    docs_url   = "/docs"   if ENV != "production" else None,
+    redoc_url  = "/redoc"  if ENV != "production" else None,
+    openapi_url= "/openapi.json" if ENV != "production" else None,
+)
 gateway = AuditGateway(gateway_id="gateway-001")
 
 
