@@ -85,3 +85,16 @@ def resolve_anomaly(event_id: str):
     if not ok:
         raise HTTPException(404, f"이벤트를 찾을 수 없음: {event_id}")
     return {"resolved": True}
+
+
+from fastapi.middleware.cors import CORSMiddleware
+
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins     = ALLOWED_ORIGINS,   # 운영: ["https://korpix.dev"]
+    allow_credentials = True,
+    allow_methods     = ["GET", "POST"],
+    allow_headers     = ["Authorization", "Content-Type", "X-Terminal-ID"],
+)
