@@ -66,10 +66,10 @@ npm install && npm run build
 
 | UC | 영역 | 상태 |
 |---|---|---|
-| UC-001 | 소액 정기결제 자동화 | ✅ 구현 완료 |
-| UC-002 | AI 투자 자동화 | ✅ 구현 완료 |
-| UC-003 | 기업 구매 승인 자동화 | ✅ 구현 완료 |
-| UC-004 | AI 행정 서비스 자동화 | ✅ 구현 완료 |
+| UC-001 | 소액 정기결제 자동화 | 🚧 진행 중 |
+| UC-002 | AI 투자 자동화 | 🚧 진행 중 |
+| UC-003 | 기업 구매 승인 자동화 | 🚧 진행 중 |
+| UC-004 | AI 행정 서비스 자동화 | 🚧 진행 중 |
 | UC-005 | AI Node PC 하드웨어 Trust Terminal | 🚧 진행 중 |
 
 기여: [CONTRIBUTING.md](CONTRIBUTING.md) | 라이선스: [Apache 2.0](LICENSE)
