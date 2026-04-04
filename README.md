@@ -18,7 +18,7 @@
 # KorPIX Core
 
 > **AI 행동 신뢰 인프라 (AI Behavior Trust Infrastructure)**  
-> Korea Protocol Infrastructure eXchange
+> Kernel of Reliability Policy, Integrity & eXecution Standard
 
 KorPIX는 자율 행동형 AI(Agentic AI)가 실제 경제 활동을 수행할 때
 그 행동을 안전하게 **실행 · 통제 · 감사**하는 오픈 표준 인프라입니다.
