@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://korpix.io/schemas/risk_score.schema.json",
+  "$id": "https://korpix.io/schemas/risk_score_schema.json",
   "title": "RiskScore",
   "description": "KorPIX Risk Score 계산 결과",
   "type": "object",
