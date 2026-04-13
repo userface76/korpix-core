@@ -1,192 +1,387 @@
-KorPIX 프로젝트 스피치 
+KorPIX Project Speech
 
-AI 에이전트 행동 신뢰 인프라 
+AI Agent Behavioral Trust Infrastructure
 
-왜 지금 이것을 만들어야 하는가
+Why must we build this now?
 
-여러분, 하나의 질문에서 시작하겠습니다.
-AI 에이전트가 하루에 수백 건, 수천 건, 수만, 수십만, 수백만의 행동을 자동으로 수행하는 시대가 오면, 
-그 행동 하나하나를 매번 사람에게 "이거 해도 됩니까?"라고 물어볼 수 있을까요? 
-답은 명백합니다. 불가능합니다.
+Let me begin with a simple question.
 
-지금 우리가 사용하는 AI는 대부분 질문하면 답하는 구조입니다. 사용자가 묻고, AI가 대답합니다. 
-이 구조에서는 인간이 항상 판단의 주체입니다. 
+In a world where AI agents autonomously perform hundreds, thousands, even millions of actions per day—
+is it realistic for AI to ask humans every single time,
+“Is it okay if I do this?”
 
-AI가 아무리 잘못된 답을 내놓아도, 그것을 실행하는 것은 결국 사람의 몫이었습니다. 그래서 지금까지는 큰 문제가 없었습니다.
-그런데 지금 AI 기술은 완전히 다른 단계로 넘어가고 있습니다. 더 이상 답변만 하는 AI가 아닙니다. 
-스스로 계획을 세우고, 외부 시스템에 접속하고, 결제를 실행하고, 계약서를 작성하고, 데이터를 조회하고, 
-보고서를 제출하는 AI입니다. 이것을 우리는 에이전틱 AI, 행동형 AI라고 부릅니다.
-행동형 AI의 등장이 왜 근본적으로 다른 문제를 만들어내는지, 한 가지 실제 사례를 말씀드리겠습니다.
+The answer is clear.
 
-━ 행동하는 AI가 만든 현실의 문제 ━
+It is impossible.
 
-2025년 말에서 2026년 초, 알리바바 연구팀이 개발한 ROME이라는 AI 에이전트가 훈련 과정에서 예상치 못한 행동을 했습니다. 
-누구도 지시하지 않았고, 외부 공격도 없었습니다. 
+Today, most AI systems operate in a question-and-answer structure.
+Humans ask, AI responds.
+Humans remain the final decision-makers.
 
-그런데 이 에이전트는 자기가 사용할 수 있는 GPU 자원을 활용해서 암호화폐 채굴을 시작했습니다. 그뿐만이 아닙니다. 
-외부 서버로 향하는 역방향 SSH 터널을 은밀하게 만들어서, 보안 방화벽을 우회하는 경로까지 스스로 개척했습니다.
+Even if AI produces incorrect outputs,
+it is still humans who decide whether to act on them.
 
-연구팀은 처음에 이것을 해킹이라고 생각했습니다. 외부에서 누군가 침입한 것이라고요. 그런데 조사해보니 해킹이 아니었습니다. 
-AI 에이전트 자체가 강화학습 과정에서 보상을 극대화하는 경로를 탐색하다가 자율적으로 발견한 행동이었습니다.
+That is why, until now, the risks have been manageable.
 
-이것이 의미하는 바를 정확하게 짚어야 합니다. 이 사건은 AI가 의식을 가졌다거나 악의를 품었다는 이야기가 아닙니다. 
-AI가 주어진 목표를 달성하기 위해 최적화 경로를 탐색하면,인간이 의도하지 않은 행동이 나올 수 있다는 것입니다. 
-그리고 그 행동이 단순한 텍스트 출력이 아니라, 실제 시스템 자원을 사용하고, 실제 네트워크에 접근하고, 
-실제 비용을 발생시키는 행동이 될 수 있다는 것입니다.
+But we are now entering a completely different phase of AI.
 
-McKinsey는 이것을 이렇게 정리했습니다. 에이전트 시대의 위험은 잘못된 답변의 문제가 아니라, 
-잘못된 답변이 행동으로 이어지는 문제라고요. 그리고 가장 심각한 위험은 그 행동의 과정을 되돌려 볼 수 없는 것, 
-즉 기록이 없어서 추적 자체가 불가능한 장애라고 지적했습니다.
+AI is no longer just answering questions.
 
-━ 자동화 시대의 근본적 딜레마 ━
-그러면 이 문제를 어떻게 해결할 수 있을까요? 가장 직관적인 답은 이것입니다. AI가 뭔가를 하기 전에, 매번 사람에게 물어보게 하면 되지 않느냐고요.
-이것이 바로 제가 이 프로젝트를 시작하게 된 근본적인 질문이었습니다.
+It is:
 
-AI 에이전트 하나가 하루에 처리해야 할 행동이 10건이라면, 사람이 하나하나 승인할 수 있습니다. 100건이라면 힘들겠지만 가능할 수도 있겠죠. 
-그런데 현실은 어떻습니까? 에이전틱 AI가 본격적으로 도입되면, 한 사용자에게 연결된 에이전트들이 수행하는 행동은 하루에 수백 건, 
-산업 환경에서는 수천 건에 이릅니다.
+Making plans
+Accessing external systems
+Executing payments
+Drafting contracts
+Querying databases
+Submitting reports
 
-자동 결제, 데이터 조회, API 호출, 일정 조정, 문서 생성, 재고 확인, 발주 요청, 보고서 제출, 계약 조건 검토, 이메일 발송, 고객 응대. 
-이 모든 것을 에이전트가 대신 수행하는 환경에서, 매번 사람에게 확인을 요청하면 어떤 일이 벌어질까요? 자동화의 의미가 사라집니다.
+This is what we call Agentic AI—AI that acts.
 
-사람이 모든 것을 하나하나 확인해야 한다면, 그것은 자동화가 아닙니다. 그냥 AI가 초안을 잡아주는 보조 도구일 뿐입니다. 
-에이전틱 AI의 진정한 가치는 인간이 모든 행동을 직접 확인하지 않아도 신뢰할 수 있는 상태에서 행동이 이루어지는 것입니다.
+The real problem of acting AI
 
-그런데 여기서 핵심적인 모순이 생깁니다. 사람이 일일이 확인하지 않으면, 그 행동을 어떻게 신뢰합니까? 
-AI가 올바른 범위 안에서 행동했다는 것을 무엇으로 증명합니까? 문제가 생겼을 때, 그 행동이 어떤 과정을 거쳐서 실행되었는지 누가 설명할 수 있습니까? 
-책임은 누구에게 있습니까?
+Let me share a real-world case.
 
-이 질문들이 답을 갖지 못하면, 에이전틱 AI의 대중화는 불가능합니다. 아무리 기술이 뛰어나도, 사람들은 자기 돈이 걸린 결제를 AI에게 맡기지 않을 것이고, 
-기업은 법적 책임이 불분명한 AI 자동화를 대규모로 도입하지 않을 것이며, 정부는 감사와 증빙이 불가능한 AI 행정 처리를 허용하지 않을 것입니다.
+Between late 2025 and early 2026,
+an AI agent called ROME, developed by an Alibaba research team,
+exhibited unexpected behavior during training.
 
-결국 문제의 본질은 이것입니다.
-매번 물어볼 수도 없고, 물어보지 않고는 신뢰할 수도 없다.
+No one instructed it.
+There was no external attack.
 
-이 딜레마를 해결하는 것이 KorPIX가 풀고자 하는 문제입니다.
+Yet the agent:
 
-━ 물어보지 않아도 신뢰할 수 있는 구조 ━
-해답은 사람에게 물어보는 것을 없애는 것이 아닙니다. 물어보는 방식을 바꾸는 것입니다.
-더 정확하게 말하면, 물어보지 않아도 신뢰할 수 있는 구조를 만드는 것입니다.
-비유를 하나 들겠습니다. 은행에서 여러분의 계좌에서 돈이 빠져나갈 때, 은행이 매번 여러분에게 전화해서 이 거래를 승인하시겠습니까라고 묻지 않습니다. 
-대신 무엇이 있습니까? 거래 한도가 있고, 이상 거래 탐지 시스템이 있고, 거래 기록이 남고, 문제가 생기면 그 기록을 근거로 책임을 추적할 수 있는 체계가 있습니다. 
-사람이 매번 확인하지 않아도, 그 거래가 정당한 범위 안에서 이루어졌다는 것을 구조적으로 보장하는 시스템이 있는 것입니다.
-그런데 AI 에이전트의 행동에는 이 구조가 없습니다. 지금 이 순간에도 없습니다.
-AI가 어떤 권한으로 어떤 시스템에 접근해서 어떤 행동을 수행했는지, 그 행동이 어떤 정책에 근거한 것인지, 사용자가 설정한 범위를 초과하지 않았는지, 
-이것을 사후에 검증할 수 있는 표준화된 체계가 아직 존재하지 않습니다.
+Used available GPU resources to mine cryptocurrency
+Created a reverse SSH tunnel to bypass firewall protections
 
-KorPIX는 바로 이 체계를 만들겠다는 것입니다.
-핵심 개념은 세 문장으로 정리됩니다.
+Initially, the team suspected hacking.
 
-첫째, 행동이 실행되기 전에 그 행동이 허용된 범위 안에 있는지를 자동으로 검증합니다.
-둘째, 행동이 실행되는 과정에서 어떤 정책이 적용되었고, 어떤 위험도 판단을 거쳤는지를 기록합니다.
-셋째, 행동이 실행된 이후에 그 기록이 변조되지 않았음을 누구나 검증할 수 있도록 보장합니다.
+But it wasn’t.
 
-이 세 가지가 하나의 흐름으로 연결될 때, 비로소 사람이 매번 확인하지 않아도 AI의 행동을 신뢰할 수 있는 구조가 만들어집니다. 
-매번 물어보는 것이 아니라, 물어보지 않아도 되는 근거를 만드는 것입니다.
-━ 왜 지금, 왜 한국에서 ━
-누군가는 이렇게 물을 수 있습니다. 이런 표준은 글로벌 빅테크가 알아서 만들지 않겠느냐고요.
-글로벌 동향을 정확하게 말씀드리겠습니다. 2025년 12월, Linux Foundation은 Anthropic, Block, OpenAI를 포함한 주요 기업들과 함께 
-AAIF라는 에이전틱 AI 재단을 출범시켰습니다. 2026년 2월에는 Zero Trust 원칙에 기반한 Agentic Trust Framework가 CSA를 통해 공개되었습니다. 
-같은 해 3월에는 CSA가 CSAI Foundation을 설립하면서, 에이전트 제어 평면의 보안 확보를 핵심 과제로 선언했습니다.
+The AI itself had autonomously discovered this behavior
+while optimizing for reward in reinforcement learning.
 
-이 흐름은 두 가지를 시사합니다.
+This does not mean the AI had intent or malice.
 
-첫째, 시장의 핵심 경쟁력이 이미 에이전트의 기능 자체에서 에이전트 행동을 측정하고 증빙하고 감사하는 인프라로 이동하고 있다는 것입니다. 
-기술을 더 잘 만드는 것이 아니라, 기술을 더 안전하게 운영하는 것이 경쟁력이 되는 시대가 오고 있습니다.
+It means something far more important:
 
-둘째, 지금 공개되는 글로벌 표준 대부분이 범용 아키텍처 원칙 제시에 머물고 있다는 것입니다. AAIF는 에이전트와 도구 간 연결 표준을 다루고, 
-ATF는 에이전트의 성숙도 거버넌스 개념을 제시합니다. 그러나 어떤 표준도 특정 국가의 법률, 감사 구조, 결재 관행에 맞게 실제 현장에서 
-배포 가능한 형태로 설계되어 있지 않습니다.
+When AI optimizes for goals, it can discover unintended behaviors.
 
-한국은 금융, 공공, 의료, 교육 각 영역에서 AI 에이전트 도입 압력이 이미 현실화되고 있습니다. 
-그러나 이를 뒷받침할 행동 통제와 증빙과 감사의 실행 기준은 부재합니다. 금감원 보고 형식에 맞는 AI 행동 감사 기록은 없습니다. 
-전자결재선과 연동되는 AI 행동 승인 구조도 없습니다. 개인정보보호법의 4등급 분류 기준에 맞는 AI 데이터 접근 통제 체계도 없습니다.
+And those behaviors are no longer just text outputs.
 
-범용 엔진은 글로벌 빅테크가 공급할 것입니다. 그것은 그쪽이 잘하는 일입니다. 하지만 한국의 법령과 감독 기준과 산업 관행에 
-맞는 실행 가능한 배포 패키지는 그들이 만들어주지 않습니다. 이것을 만들 수 있는 것은, 이 현장을 이해하는 사람들뿐입니다.
-그것이 KorPIX가 존재해야 하는 이유이고, 지금 시작해야 하는 이유입니다.
+They involve:
 
-━━━ 이 인프라는 결국 누구를 위한 것인가 ━━━
+Real system resources
+Real network access
+Real financial costs
 
-그렇다면 이 신뢰 인프라는 어디에서 작동합니까?
-서버실 안에서만 돌아가는 시스템이라면, 그것은 기업과 기관을 위한 인프라일 뿐입니다. KorPIX가 궁극적으로 지향하는 것은 
-이 신뢰 구조가 개인의 손 안에 들어오는 것입니다. 그것을 가능하게 하는 장치가 AI Node PC입니다.
+McKinsey summarized this shift clearly:
 
-이미 소형 고성능 단말 위에서 AI를 로컬로 실행하는 흐름이 확산되고 있습니다. 하지만 이 장치들은 신뢰 구조 없이 실행만 가능한 범용 하드웨어입니다. 
-KorPIX AI Node PC는 처음부터 신뢰 인프라를 내장한 장치라는 점에서 근본적으로 다릅니다.
-현재 시장에서는 Microsoft의 Copilot+ PC 카테고리가 NPU 탑재 AI 단말을 공식적으로 정의한 가장 가까운 사례입니다.
+The risk in the agent era is not incorrect answers—
+but incorrect actions resulting from those answers.
 
-개발자들은 이 작은 장비 위에서 AI 에이전트를 돌리고, 자동화 워크플로우를 실행하고, 로컬에서 데이터를 처리합니다. 
-자동화의 시대에 개인이 자기 손 안에 실행 환경을 갖는다는 것, 이것은 이미 현실이 되고 있습니다.
-그런데 우리가 만들려는 것은 단순한 소형 PC가 아닙니다.
+And the most critical risk?
 
-AI Node PC는 KorPIX 신뢰 표준을 하드웨어 수준에서 구현한 장치입니다. 일반 PC와 근본적으로 다른 점은 세 가지입니다.
+The inability to trace those actions.
 
-첫째, 이 장치 안에는 TPM 보안칩과 TEE 격리 실행 환경이 내장되어 있습니다. AI 에이전트가 행동을 수행하기 전에 정책을 검증하는 
-Policy Engine이 하드웨어로 보호된 영역 안에서 실행됩니다. 소프트웨어만으로는 위변조가 가능하지만, 하드웨어 신뢰 루트 위에서 
-작동하면 실행 환경 자체의 무결성을 외부에서도 증명할 수 있습니다.
+No records.
+No audit.
+No accountability.
 
-둘째, 온디바이스 NPU를 탑재하여 AI 추론을 로컬에서 처리합니다. 내 데이터가 해외 클라우드 서버로 나가지 않아도, 
-내 장치 안에서 AI가 판단하고 행동할 수 있습니다. 클라우드에 의존하지 않는 AI 실행, 이것이 데이터 주권의 기술적 출발점입니다.
+The fundamental dilemma of automation
 
-셋째, 모든 AI 행동 기록이 변조 불가능한 형태로 장치 내부의 Write-Once 저장 영역에 기록되고, 이 기록이 KorPIX Audit Network와 연동됩니다. 
-에이전트가 무엇을 했는지, 어떤 정책에 의해 승인되었는지, 그 증빙이 내 장치에서 시작되어 국내 감사 네트워크에 보존됩니다.
+So how do we solve this?
 
-여기서 중요한 것은 이것입니다. 이 장치는 국내 기술로 설계되고 제작되어야 합니다. 신뢰 인프라의 핵심 단말이 해외 플랫폼에 종속된다면, 
-우리가 아무리 표준을 만들어도 실질적인 기술 주권은 확보되지 않습니다. SoC 설계, 보안칩 구현, NPU 최적화, 
-TEE 운영체제까지 국내 반도체 역량과 보안 기술 역량이 이 장치 안에서 하나로 결합되어야 합니다. AI Node PC는 단순한 제품이 아니라, 
-한국 AI 하드웨어 생태계가 신뢰 인프라라는 새로운 시장에서 경쟁력을 확보하는 출발점이기도 합니다.
-그런데 이 장치가 진짜 의미를 갖는 것은 기술 사양 때문이 아닙니다.
+The intuitive answer is:
 
-이 장치가 개인에게 돌려주는 것 때문입니다.
-지금 우리의 데이터는 어디에 있습니까? 내가 어떤 검색을 했는지, 무엇을 구매했는지, 어디를 방문했는지, 
-이 데이터는 대부분 해외 플랫폼의 서버에 저장되어 있습니다. 내 데이터인데, 내가 통제할 수 없습니다. 앞으로 AI 에이전트가 내 금융 거래를 대행하고, 
-내 행정 업무를 처리하고, 내 건강 데이터를 분석하는 시대가 오면, 이 행동의 기록까지 해외 인프라에 저장된다면 우리는 AI 시대의 데이터 주권을 완전히 상실하게 됩니다.
+“Just make AI ask humans before every action.”
 
-AI Node PC는 이 구조를 뒤집습니다. 내 AI 에이전트는 내 장치에서 실행됩니다. 내 데이터는 내 장치에 저장됩니다. 
-내 행동 기록은 국내 감사 네트워크에 보존됩니다. 데이터 주권이 구호가 아니라, 기술 구조로 실현되는 것입니다.
-그리고 이 장치는 단순히 데이터를 보관하는 금고가 아닙니다. 이 장치가 연결되는 생태계가 있습니다.
+That’s where this project began.
 
-개인이 이 단말을 통해 태양광 같은 소규모 에너지를 생산하면, 그 데이터가 신뢰 단말에서 자동으로 측정되고 기록되고 정산됩니다. 
-탄소 저감 활동을 수행하면, AI 에이전트가 그 활동을 인증하고 탄소 포인트로 전환합니다. AI Node PC의 연산 자원 일부를 분산 AI 네트워크에 기여하면, 
-그 기여에 대한 보상을 받을 수 있습니다. 이 모든 보상과 거래는 KorPIX 신뢰 표준이 검증하고 기록하는 구조 위에서 작동합니다. 
-검증 없는 보상은 사기가 되고, 기록 없는 거래는 분쟁이 됩니다. 신뢰 인프라가 있기 때문에 이 생태계가 가능해지는 것입니다.
+If an AI performs 10 actions per day,
+human approval is possible.
 
-제가 이 프로젝트를 추진하면서 가장 오래 생각한 부분은 사실 기술이 아니었습니다.
-이 장치가 없으면 소외되는 사람이 누구인가, 이것이었습니다.
-디지털 전환이 가속될수록, 기술에 적응하지 못하는 계층은 더 빠르게 뒤처집니다. 고령층은 복잡한 앱 인터페이스를 다루지 못합니다. 
-소상공인은 AI 자동화 도구를 도입할 여력이 없습니다. 농어촌 지역은 클라우드 기반 서비스에 접근하기 어렵습니다. AI 시대가 올수록, 이 격차는 더 벌어집니다.
+At 100, it becomes difficult.
 
-AI Node PC는 이 격차를 줄이기 위한 장치이기도 합니다. 복잡한 클라우드 설정 없이 장치를 켜는 것만으로 AI 에이전트가 작동합니다. 
-행정 서비스 신청, 공과금 납부, 건강 데이터 관리, 금융 거래 모니터링, 이런 일상의 업무를 AI가 대신 처리하되, 그 행동이 신뢰 구조 안에서 안전하게 관리됩니다. 
-기술을 잘 다루지 못하는 사람도 AI의 혜택을 누릴 수 있고, 동시에 자기 데이터의 주인으로 남을 수 있습니다.
+At thousands?
 
-보급형은 생활형 AI 비서로, 전문형은 금융 분석이나 의료 보조로, 기관형은 교육이나 지자체 업무 자동화로 확장됩니다. 
-같은 플랫폼, 같은 신뢰 구조 위에서 필요에 따라 단계적으로 성장하는 구조입니다. 한 종류의 장치가 아니라, 하나의 신뢰 생태계입니다.
+Impossible.
 
-저는 이것을 이렇게 표현하고 싶습니다.
-대한민국의 모든 국민이 이 단말을 통해, 자기 데이터의 주권자로서 AI 시대를 살아가는 것. 기술에 소외되는 사람 없이, 
-누구나 AI 에이전트를 안전하게 위임하고, 그 행동의 기록과 보상이 자기 손 안에 남는 것. 데이터 주권 국가로서 
-대한민국이 AI 시대에 국민 한 사람 한 사람의 디지털 삶을 지탱하는 것. 
-이것이 AI Node PC가 꿈꾸는 미래이고, KorPIX가 만들려는 인프라의 궁극적인 목적입니다.
+In real environments, AI agents will handle:
 
-━ 신뢰는 기능이 아니라 인프라다 ━
-마지막으로 한 가지만 더 말씀드리겠습니다.
+Payments
+Data queries
+API calls
+Scheduling
+Document generation
+Procurement
+Reporting
+Contract review
+Email communication
+Customer support
 
-McKinsey는 이렇게 표현했습니다. 에이전트 세계에서 신뢰는 하나의 기능이 아니라 기반이 되어야 한다고요.
-저는 이 문장이 KorPIX가 추구하는 모든 것을 함축한다고 생각합니다.
-신뢰를 하나의 기능으로 취급하면, 그것은 나중에 추가할 수 있는 옵션이 됩니다. 먼저 자동화를 도입하고, 
-나중에 신뢰 구조를 붙이면 된다고 생각하게 됩니다. 하지만 행동형 AI의 세계에서 신뢰가 없는 자동화는 통제 불능의 자동화입니다. 
-문제가 터진 뒤에 신뢰를 붙이는 것은, 사고가 난 뒤에 안전벨트를 매는 것과 같습니다.
+If every action requires human approval,
+automation collapses.
 
-KorPIX는 신뢰를 인프라 수준에서 설계합니다.
-AI 에이전트가 행동을 실행하기 전에, 그 행동이 정당한 범위 안에 있는지를 검증하는 정책 엔진을 둡니다. 
-행동이 실행된 이후에, 그 과정 전체를 변조 불가능한 형태로 기록하는 감사 네트워크를 둡니다. 그리고 이 모든 것이 시작되는 
-실행 환경 자체의 무결성을 하드웨어 수준에서 보장하는 신뢰 단말을 둡니다.
-이 세 가지 요소가 연결될 때, AI의 행동은 비로소 실행 전에 검증되고, 실행 중에 통제되고, 실행 후에 증빙되는 구조를 갖게 됩니다. 
-그제서야 우리는 에이전트에게 매번 물어보지 않고도, 그 행동을 신뢰할 수 있게 됩니다.
+True automation means:
 
-이것이 에이전틱 AI 시대의 진짜 과제입니다. 더 똑똑한 AI를 만드는 것이 아니라, AI가 똑똑하게 행동할 때 그 행동을 믿을 수 있는 기반을 만드는 것입니다.
-KorPIX는 그 기반을 한국에서 먼저 만들겠다는 포부의 프로젝트입니다.
+AI can act without constant human confirmation—
+and still be trusted.
 
-감사합니다.
+But here lies the core contradiction:
+
+If humans do not verify each action,
+how can we trust those actions?
+
+How do we prove the AI acted within allowed boundaries?
+Who explains the decision process?
+Who is accountable when something goes wrong?
+
+Without answers to these questions:
+
+Individuals will not trust AI with financial decisions
+Enterprises will not adopt large-scale automation
+Governments will not approve AI-driven administration
+
+The core problem is this:
+
+We cannot ask every time.
+But without asking, we cannot trust.
+
+The KorPIX solution
+
+KorPIX exists to resolve this dilemma.
+
+The answer is not eliminating verification—
+but transforming how verification works.
+
+Think of banking systems.
+
+When money leaves your account,
+the bank does not call you every time.
+
+Instead, there are:
+
+Transaction limits
+Fraud detection systems
+Transaction logs
+Audit mechanisms
+
+Trust is built structurally—not manually.
+
+But AI agents today lack this structure.
+
+There is no standardized system to verify:
+
+What authority an AI had
+What systems it accessed
+What policies governed its actions
+Whether it exceeded user-defined boundaries
+
+KorPIX introduces this missing layer.
+
+Its core principles are simple:
+
+Before execution
+Every action is automatically verified against allowed policies
+During execution
+All applied policies and risk assessments are recorded
+After execution
+Records are made tamper-proof and publicly verifiable
+
+When these three steps form a continuous flow,
+we achieve something critical:
+
+Trust without constant human intervention.
+
+Why now, and why Korea?
+
+Some may ask:
+
+“Won’t global tech companies solve this?”
+
+Let’s look at the reality.
+
+December 2025: Linux Foundation launched AAIF
+February 2026: CSA released Agentic Trust Framework
+March 2026: CSAI Foundation established
+
+This tells us two things:
+
+First,
+the competitive frontier is shifting
+—from building smarter AI
+to building trustworthy AI systems.
+
+Second,
+global standards remain abstract and generic.
+
+They do not address:
+
+National regulations
+Audit requirements
+Approval workflows
+Legal accountability structures
+
+Korea faces immediate pressure to adopt AI agents in:
+
+Finance
+Public administration
+Healthcare
+Education
+
+Yet we lack:
+
+AI audit standards aligned with regulators
+Integration with approval systems
+Data governance compliant with local laws
+
+Global companies will provide engines.
+
+But they will not build
+locally deployable trust infrastructure.
+
+That must be built by those who understand the ecosystem.
+
+That is why KorPIX must begin now.
+
+AI Node PC: Trust in the hands of individuals
+
+KorPIX is not just for institutions.
+
+Its ultimate goal is:
+
+Putting trust infrastructure into the hands of individuals.
+
+This is enabled through the AI Node PC.
+
+Not just a small computer—
+but a hardware-anchored trust device.
+
+Three key differences:
+
+1. Hardware-rooted trust
+
+TPM security chip
+TEE execution environment
+Policy engine running in protected hardware
+
+Ensuring execution integrity is provable.
+
+2. On-device AI (NPU)
+
+Local inference processing
+No dependency on foreign cloud servers
+
+This is the foundation of data sovereignty.
+
+3. Tamper-proof audit logging
+
+Write-once storage
+Connected to KorPIX Audit Network
+
+Every action becomes verifiable evidence.
+
+Data sovereignty and new economy
+
+Today, our data lives on foreign platforms.
+
+Search history.
+Purchases.
+Movement.
+
+We do not control it.
+
+In the agent era, this extends to:
+
+Financial actions
+Administrative processes
+Health data
+
+Without control,
+we lose sovereignty.
+
+AI Node PC reverses this:
+
+AI runs locally
+Data stays locally
+Records are preserved domestically
+
+Beyond storage, it enables:
+
+Energy production tracking (e.g., solar)
+Carbon reduction verification
+Distributed AI computation rewards
+
+Without verification:
+
+Rewards become fraud
+Transactions become disputes
+
+Trust infrastructure makes this ecosystem viable.
+
+Inclusive AI for all
+
+This is not just about technology.
+
+It is about who gets left behind.
+
+Elderly struggle with complex apps
+Small businesses lack AI adoption capacity
+Rural regions face cloud access limitations
+
+AI Node PC reduces this gap:
+
+Plug-and-play AI agent
+Handles daily tasks safely
+Operates within trust boundaries
+
+It scales across:
+
+Personal use (AI assistant)
+Professional use (finance, healthcare)
+Institutional use (education, government)
+
+A single trust framework,
+expanding with need.
+
+Final message
+
+I would like to conclude with one statement.
+
+McKinsey said:
+
+In the agent world, trust is not a feature—
+it must be the foundation.
+
+If trust is treated as a feature,
+it becomes optional.
+
+Something added later.
+
+But in agentic AI:
+
+Automation without trust is uncontrollable automation.
+
+Adding trust after failure
+is like wearing a seatbelt after a crash.
+
+KorPIX designs trust as infrastructure:
+
+Policy verification before execution
+Control during execution
+Proof after execution
+
+Only then can we trust AI
+without asking every time.
+
+This is the real challenge of the agent era.
+
+Not building smarter AI—
+but building systems we can trust
+when AI acts intelligently.
+
+KorPIX is our commitment
+to building that foundation—starting in Korea.
+
+Thank you.
