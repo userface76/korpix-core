@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://korpix.io/schemas/policy_decision.schema.json",
+  "$id": "https://korpix.io/schemas/policy_decision_schema.json",
   "title": "PolicyDecision",
   "description": "KorPIX Policy Engine 결정 결과",
   "type": "object",
