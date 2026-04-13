@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://korpix.io/schemas/action_record.schema.json",
+  "$id": "https://korpix.io/schemas/action_record_schema.json",
   "title": "ActionRecord",
   "description": "KorPIX AI 행동 감사 기록 표준 구조 v0.1",
   "type": "object",
