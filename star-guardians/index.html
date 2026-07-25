@@ -1,1 +1,165 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>스타가디언즈: 다크가디언즈의 습격</title><style>html,body{margin:0;height:100%;overflow:hidden;background:#090b1a;font-family:system-ui,-apple-system,sans-serif}#wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}.title{color:#fff;font-weight:900;font-size:18px;text-shadow:0 0 10px #7dd3fc}canvas{width:min(96vw,960px);height:auto;max-height:72vh;border:3px solid white;border-radius:14px;background:#10163a;image-rendering:pixelated}.controls{display:flex;gap:8px;touch-action:none;flex-wrap:wrap;justify-content:center}button{border:0;border-radius:14px;min-width:58px;height:54px;padding:0 14px;font-size:22px;font-weight:900;background:#f8fafc;box-shadow:0 4px 0 #64748b}button:active{transform:translateY(3px);box-shadow:0 1px 0 #64748b}.jump{background:#fde68a}.attack{background:#fca5a5}.switch{background:#c4b5fd;font-size:16px}.hint{color:#dbeafe;font-size:12px;font-weight:700}</style></head><body><div id="wrap"><div class="title">⭐ 스타가디언즈: 다크가디언즈의 습격 ⭐</div><div class="hint">스타코어 5개를 모으고 다크캅스스타를 물리쳐!</div><canvas id="game" width="960" height="540"></canvas><div class="controls"><button id="left">◀</button><button id="right">▶</button><button id="jump" class="jump">점프</button><button id="attack" class="attack">공격</button><button id="switch" class="switch">영웅 교체</button></div></div><script>const c=document.getElementById('game'),x=c.getContext('2d');const K={};let cam=0,won=false,over=false,tick=0;const heroes=[{name:'파이어스타',color:'#ef4444',atk:'#fb923c',skill:'파이어 블래스트'},{name:'아이스스타',color:'#38bdf8',atk:'#bae6fd',skill:'아이스 샷'},{name:'썬더스타',color:'#facc15',atk:'#fde047',skill:'썬더 볼트'},{name:'화이트핑크',color:'#f9a8d4',atk:'#fbcfe8',skill:'힐링 스타'},{name:'블래이드스타',color:'#6366f1',atk:'#c7d2fe',skill:'스타 슬래시'}];let hi=0;const P={x:80,y:380,w:44,h:64,vx:0,vy:0,ground:false,hp:5,cores:0,inv:0,face:1,cool:0};const plats=[{x:0,y:470,w:620,h:70},{x:710,y:470,w:520,h:70},{x:1320,y:470,w:520,h:70},{x:1920,y:470,w:510,h:70},{x:2520,y:470,w:680,h:70},{x:250,y:385,w:170,h:22},{x:790,y:350,w:150,h:22},{x:1080,y:285,w:150,h:22},{x:1420,y:390,w:170,h:22},{x:1700,y:320,w:160,h:22},{x:2050,y:365,w:180,h:22},{x:2360,y:300,w:160,h:22},{x:2740,y:385,w:180,h:22}];const cores=[{x:335,y:330,t:0},{x:865,y:295,t:0},{x:1155,y:230,t:0},{x:1780,y:265,t:0},{x:2440,y:245,t:0}];const enemies=[{x:500,y:430,w:48,h:40,v:1.4,a:470,b:590,hp:2},{x:910,y:430,w:48,h:40,v:1.6,a:760,b:1170,hp:2},{x:1510,y:430,w:48,h:40,v:1.7,a:1350,b:1780,hp:2},{x:2180,y:430,w:48,h:40,v:1.9,a:1970,b:2380,hp:3},{x:2780,y:430,w:48,h:40,v:2,a:2600,b:2960,hp:3}];const boss={x:3050,y:360,w:90,h:110,hp:15,max:15,alive:true,v:1.4,a:2940,b:3120};let shots=[];function hit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}function reset(){P.x=80;P.y=380;P.vx=P.vy=0;P.hp=5;P.cores=0;P.inv=0;cores.forEach(q=>q.t=0);enemies.forEach((e,i)=>{e.hp=i<3?2:3});boss.hp=boss.max;boss.alive=true;shots=[];won=over=false;hi=0}function jump(){if(P.ground&&!won&&!over){P.vy=-15;P.ground=false}else if(won||over)reset()}function attack(){if(won||over){reset();return}if(P.cool>0)return;P.cool=22;const h=heroes[hi];if(hi===3&&P.hp<5){P.hp++;return}shots.push({x:P.face>0?P.x+P.w:P.x-18,y:P.y+28,w:22,h:10,v:12*P.face,color:h.atk,life:70,pow:hi===4?2:1})}function bind(id,key){const e=document.getElementById(id);e.onpointerdown=a=>{a.preventDefault();K[key]=1};['pointerup','pointercancel','pointerleave'].forEach(n=>e.addEventListener(n,a=>{a.preventDefault();K[key]=0}))}bind('left','L');bind('right','R');document.getElementById('jump').onpointerdown=e=>{e.preventDefault();jump()};document.getElementById('attack').onpointerdown=e=>{e.preventDefault();attack()};document.getElementById('switch').onpointerdown=e=>{e.preventDefault();hi=(hi+1)%heroes.length};addEventListener('keydown',e=>{if(e.key==='ArrowLeft')K.L=1;if(e.key==='ArrowRight')K.R=1;if(e.key===' ')jump();if(e.key==='x')attack();if(e.key==='c')hi=(hi+1)%heroes.length});addEventListener('keyup',e=>{if(e.key==='ArrowLeft')K.L=0;if(e.key==='ArrowRight')K.R=0});function damage(){if(P.inv>0)return;P.hp--;P.inv=90;P.vy=-8;P.vx=-7*P.face;if(P.hp<=0)over=true}function update(){tick++;if(won||over)return;if(K.L){P.vx-=.8;P.face=-1}if(K.R){P.vx+=.8;P.face=1}P.vx*=.84;P.vx=Math.max(-7,Math.min(7,P.vx));P.vy+=.75;P.x+=P.vx;P.y+=P.vy;P.ground=false;for(const p of plats){if(P.x+P.w>p.x&&P.x<p.x+p.w&&P.y+P.h>=p.y&&P.y+P.h<=p.y+24&&P.vy>=0){P.y=p.y-P.h;P.vy=0;P.ground=true}}if(P.y>620){damage();P.x=Math.max(30,P.x-180);P.y=300}P.x=Math.max(0,Math.min(3180-P.w,P.x));if(P.inv>0)P.inv--;if(P.cool>0)P.cool--;for(const q of cores){if(!q.t&&Math.hypot(P.x+P.w/2-q.x,P.y+P.h/2-q.y)<38){q.t=1;P.cores++}}for(const e of enemies){if(e.hp<=0)continue;e.x+=e.v;if(e.x<e.a||e.x>e.b)e.v*=-1;if(hit(P,e))damage()}if(boss.alive){boss.x+=boss.v;if(boss.x<boss.a||boss.x>boss.b)boss.v*=-1;if(hit(P,boss))damage()}for(const s of shots){s.x+=s.v;s.life--;for(const e of enemies){if(e.hp>0&&hit(s,e)){e.hp-=s.pow;s.life=0}}if(boss.alive&&hit(s,boss)){boss.hp-=s.pow;s.life=0;if(boss.hp<=0)boss.alive=false}}shots=shots.filter(s=>s.life>0);if(P.cores===5&&!boss.alive&&P.x>3030)won=true;cam=Math.max(0,Math.min(2240,P.x-300))}function star(cx,cy,r,col){x.save();x.translate(cx,cy);x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2? r*.45:r;x.lineTo(Math.cos(a)*rr,Math.sin(a)*rr)}x.closePath();x.fillStyle=col;x.fill();x.restore()}function robot(px,py,col){x.fillStyle=col;x.fillRect(px+8,py+18,28,38);x.fillRect(px+4,py+55,14,22);x.fillRect(px+26,py+55,14,22);x.fillRect(px,py+24,9,28);x.fillRect(px+35,py+24,9,28);x.fillStyle='#e2e8f0';x.fillRect(px+10,py,24,22);x.fillStyle='#111827';x.fillRect(px+14,py+8,5,4);x.fillRect(px+25,py+8,5,4);star(px+22,py+37,8,'#fff')}function draw(){x.clearRect(0,0,c.width,c.height);const g=x.createLinearGradient(0,0,0,540);g.addColorStop(0,'#11143c');g.addColorStop(1,'#4c1d95');x.fillStyle=g;x.fillRect(0,0,960,540);x.fillStyle='white';for(let i=0;i<90;i++){const sx=(i*137-cam*.2)%1200,sy=(i*73)%330;x.globalAlpha=.35+((i%5)/8);x.fillRect(sx,sy,2+(i%3),2+(i%3))}x.globalAlpha=1;x.save();x.translate(-cam,0);x.fillStyle='#312e81';for(let i=0;i<14;i++){x.fillRect(i*250,250+(i%3)*45,190,220);x.fillStyle='#fef08a';for(let w=0;w<4;w++)x.fillRect(i*250+25+w*38,280+(w%2)*30,14,24);x.fillStyle='#312e81'}for(const p of plats){x.fillStyle='#334155';x.fillRect(p.x,p.y,p.w,p.h);x.fillStyle='#60a5fa';x.fillRect(p.x,p.y,p.w,10)}for(const q of cores)if(!q.t){star(q.x,q.y,18,'#fde047');x.strokeStyle='#fff';x.strokeRect(q.x-24,q.y-24,48,48)}for(const e of enemies)if(e.hp>0){robot(e.x,e.y-20,'#111827');x.fillStyle='#ef4444';x.fillRect(e.x+8,e.y-26,28,5)}if(boss.alive){robot(boss.x,boss.y,'#0f172a');x.save();x.translate(boss.x+45,boss.y+50);x.scale(1.7,1.7);x.translate(-22,-38);robot(0,0,'#020617');x.restore();x.fillStyle='#dc2626';x.fillRect(boss.x,boss.y-18,boss.w,10);x.fillStyle='#22c55e';x.fillRect(boss.x,boss.y-18,boss.w*(boss.hp/boss.max),10)}for(const s of shots){x.fillStyle=s.color;x.fillRect(s.x,s.y,s.w,s.h);star(s.x+s.w/2,s.y+5,7,s.color)}if(P.inv%10<5)robot(P.x,P.y,heroes[hi].color);x.restore();x.fillStyle='rgba(3,7,18,.85)';x.fillRect(16,14,470,74);x.fillStyle='white';x.font='bold 22px system-ui';x.fillText('❤️ '+P.hp+'   ⭐ 코어 '+P.cores+'/5',30,43);x.font='bold 18px system-ui';x.fillStyle=heroes[hi].color;x.fillText(heroes[hi].name+' · '+heroes[hi].skill,30,72);if(P.cores<5&&P.x>2850){x.fillStyle='rgba(0,0,0,.7)';x.fillRect(560,100,360,48);x.fillStyle='white';x.font='bold 19px system-ui';x.fillText('스타코어를 모두 모아야 해!',585,130)}if(!boss.alive&&P.cores===5){x.fillStyle='rgba(15,23,42,.8)';x.fillRect(600,100,310,48);x.fillStyle='#fde047';x.fillText('오른쪽 끝으로 이동!',665,130)}if(won||over){x.fillStyle='rgba(0,0,0,.72)';x.fillRect(0,0,960,540);x.textAlign='center';x.fillStyle='white';x.font='bold 52px system-ui';x.fillText(won?'스타시티를 지켰다!':'스타파워 소진!',480,230);x.font='bold 24px system-ui';x.fillStyle=won?'#fde047':'#fca5a5';x.fillText(won?'스타가디언즈 승리!':'다시 출동하자!',480,280);x.fillStyle='white';x.font='20px system-ui';x.fillText('점프 또는 공격 버튼을 누르면 다시 시작',480,330);x.textAlign='left'}}function loop(){update();draw();requestAnimationFrame(loop)}loop();</script></body></html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>스타가디언즈: 스타 유니버스</title>
+<style>
+*{box-sizing:border-box} html,body{margin:0;height:100%;background:#050716;color:#fff;font-family:Arial,"Noto Sans KR",sans-serif;overflow:hidden}
+#wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+canvas{width:100vw;height:100vh;display:block;background:linear-gradient(#071434,#132c62)}
+#ui{position:fixed;inset:0;pointer-events:none}
+.top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;gap:8px;font-weight:700;text-shadow:0 2px 3px #000}
+.pill{background:#0009;border:1px solid #ffffff44;border-radius:14px;padding:7px 10px}
+#controls{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:space-between;align-items:flex-end;padding:8px;pointer-events:auto}
+.pad,.actions{display:flex;gap:8px}
+button{border:0;border-radius:16px;background:#ffffffdd;color:#10152c;font-size:19px;font-weight:900;min-width:64px;height:58px;box-shadow:0 4px 0 #7f8bb5;touch-action:none}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #7f8bb5}
+.small{min-width:56px;font-size:15px}
+#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#020414e8;pointer-events:auto;padding:20px}
+.card{max-width:720px;width:100%;background:linear-gradient(180deg,#142557,#0b1232);border:2px solid #6fe7ff;border-radius:24px;padding:20px;text-align:center;box-shadow:0 0 30px #42dfff55}
+h1{font-size:clamp(30px,8vw,58px);margin:4px 0 12px}.story{font-size:clamp(16px,4vw,23px);line-height:1.6;min-height:170px;white-space:pre-line}
+.heroGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0;max-height:44vh;overflow:auto}
+.heroBtn{height:70px;min-width:0;font-size:14px;background:#eaf5ff}
+.mainBtn{width:100%;height:58px;background:#ffd84d}
+#msg{position:absolute;top:18%;left:50%;transform:translateX(-50%);background:#000c;border-radius:18px;padding:12px 18px;font-weight:900;font-size:20px;display:none;text-align:center}
+@media (min-width:800px){canvas{max-width:1000px}.controlsWrap{max-width:1000px}}
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="game"></canvas></div>
+<div id="ui">
+  <div class="top">
+    <div class="pill" id="chapter">CHAPTER 1</div>
+    <div class="pill" id="hud">⭐ 0/5　❤️ 5</div>
+    <div class="pill" id="heroName">파이어스타</div>
+  </div>
+  <div id="msg"></div>
+  <div id="controls">
+    <div class="pad"><button id="left">◀</button><button id="right">▶</button></div>
+    <div class="actions"><button class="small" id="switch">교체</button><button id="jump">점프</button><button id="attack">공격</button></div>
+  </div>
+  <div id="overlay"><div class="card" id="card"></div></div>
+</div>
+<script>
+const c=document.getElementById('game'),ctx=c.getContext('2d');
+let W=innerWidth,H=innerHeight; function resize(){W=c.width=innerWidth*devicePixelRatio;H=c.height=innerHeight*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)} addEventListener('resize',resize);resize();
+const overlay=document.getElementById('overlay'),card=document.getElementById('card'),msg=document.getElementById('msg');
+const hud=document.getElementById('hud'),chapterEl=document.getElementById('chapter'),heroNameEl=document.getElementById('heroName');
+const heroes=[
+{name:'파이어스타',color:'#ff563f',power:'파이어볼',skill:'강한 공격'},
+{name:'아이스스타',color:'#72d7ff',power:'아이스탄',skill:'적 얼리기'},
+{name:'썬더스타',color:'#ffe85b',power:'썬더볼트',skill:'빠른 이동'},
+{name:'에어스타',color:'#8affd1',power:'윈드컷',skill:'2단 점프'},
+{name:'인디고스타',color:'#754cff',power:'인디고빔',skill:'순간 이동'},
+{name:'화이트핑크',color:'#ff9ddc',power:'하트샷',skill:'체력 회복'},
+{name:'블래이드스타',color:'#d8e3f4',power:'블래이드웨이브',skill:'근접 강공격'},
+{name:'덤프스타',color:'#ff9f35',power:'덤프차지',skill:'장애물 파괴'},
+{name:'크래인스타',color:'#f2d54e',power:'크래인훅',skill:'높은 곳 도달'}
+];
+const stages=[
+{name:'스타시티',theme:['#10275f','#2e68a5'],boss:'다크캅스스타',goal:5},
+{name:'스타포레스트',theme:['#09381f','#26763d'],boss:'다크타이거',goal:6},
+{name:'아이스마운틴',theme:['#7ac8ef','#d8f5ff'],boss:'프로즌 쉐도우',goal:6},
+{name:'파이어볼케이노',theme:['#4b1010','#c34318'],boss:'마그마 비스트',goal:7},
+{name:'스카이킹덤',theme:['#5a8be0','#d6f0ff'],boss:'다크윙',goal:7},
+{name:'오션스타',theme:['#063c66','#0ca7c8'],boss:'크라켄',goal:8},
+{name:'사막유적',theme:['#a45a24','#f2bc63'],boss:'샌드골렘',goal:8},
+{name:'우주정거장',theme:['#050515','#34348f'],boss:'쉐도우매디',goal:9},
+{name:'다크월드',theme:['#16051e','#40105a'],boss:'쉐도우핑크',goal:9},
+{name:'다크가디언즈 성',theme:['#090909','#4c0b0b'],boss:'다크나이트',goal:10},
+{name:'스타유니버스',theme:['#090528','#4b2cc2'],boss:'유니버스 브레이커',goal:11},
+{name:'얼티밋 배틀',theme:['#19021e','#8e174f'],boss:'다크 코어 제왕',goal:12}
+];
+let state='title',heroIndex=0,stageIndex=0,score=0,lives=5,bossHP=0,cameraX=0,keys={},shots=[],enemies=[],cores=[],platforms=[],particles=[],last=0;
+let player={x:60,y:200,w:38,h:56,vx:0,vy:0,onGround:false,jumps:0,inv:0};
+const storyPages=[
+'아주 오래전, 별들의 힘으로 평화를 지키는 수호자들이 있었다.\n그들의 이름은… 스타가디언즈!',
+'하지만 어느 날, 우주에 거대한 검은 균열이 열렸다.\n다크가디언즈가 스타코어를 훔치기 시작했다!',
+'스타 AI: “파이어스타, 아이스스타, 썬더스타, 에어스타, 인디고스타, 화이트핑크, 블래이드스타!”',
+'스타 AI: “덤프스타와 크래인스타도 합류하라!\n12개의 세계를 지나 스타코어를 되찾아야 한다!”',
+'다크캅스스타: “흥! 너희가 과연 마지막 성까지 올 수 있을까?”\n\n스타가디언즈의 모험이 지금 시작된다!'
+];
+function showTitle(){
+state='title';overlay.style.display='flex';
+card.innerHTML=`<h1>⭐ 스타가디언즈<br>스타 유니버스</h1><p>12개 스테이지를 돌파하고 다크가디언즈를 막아라!</p><button class="mainBtn" onclick="showStory(0)">스토리 시작</button>`;
+}
+function showStory(i){
+state='story';overlay.style.display='flex';
+card.innerHTML=`<h2>오프닝 스토리 ${i+1}/${storyPages.length}</h2><div class="story">${storyPages[i]}</div><button class="mainBtn" onclick="${i<storyPages.length-1?`showStory(${i+1})`:'selectHero()'}">${i<storyPages.length-1?'다음 ▶':'영웅 선택 ⭐'}</button>`;
+}
+function selectHero(){
+state='select';overlay.style.display='flex';
+card.innerHTML=`<h2>출동할 스타가디언을 선택해!</h2><div class="heroGrid">${heroes.map((h,i)=>`<button class="heroBtn" onclick="chooseHero(${i})"><b style="color:${h.color}">★ ${h.name}</b><br>${h.power}<br><small>${h.skill}</small></button>`).join('')}</div>`;
+}
+function chooseHero(i){heroIndex=i;stageIndex=0;lives=5;startStage()}
+function startStage(){
+state='play';overlay.style.display='none';score=0;shots=[];enemies=[];cores=[];platforms=[];particles=[];cameraX=0;
+player={x:60,y:180,w:38,h:56,vx:0,vy:0,onGround:false,jumps:0,inv:0};
+const st=stages[stageIndex];bossHP=8+stageIndex*2;
+for(let i=0;i<18+stageIndex*2;i++){let x=i*180;platforms.push({x,y:360-(i%4===2?70:0),w:130,h:24});}
+for(let i=0;i<st.goal;i++)cores.push({x:220+i*300,y:245-(i%3)*50,taken:false});
+for(let i=0;i<6+stageIndex;i++)enemies.push({x:380+i*240,y:310,w:36,h:45,vx:i%2?1.2:-1.2,hp:2+Math.floor(stageIndex/4),freeze:0});
+updateHUD(); flash(`CHAPTER ${stageIndex+1}\n${st.name}`);
+}
+function updateHUD(){hud.textContent=`⭐ ${score}/${stages[stageIndex].goal}　❤️ ${lives}`;chapterEl.textContent=`CHAPTER ${stageIndex+1}`;heroNameEl.textContent=heroes[heroIndex].name}
+function flash(t){msg.textContent=t;msg.style.display='block';setTimeout(()=>msg.style.display='none',1500)}
+function attack(){
+if(state!=='play')return;let h=heroes[heroIndex],dir=player.vx<0?-1:1;
+if(h.name==='화이트핑크'&&lives<5){lives++;updateHUD();flash('화이트핑크 회복!');return}
+if(h.name==='인디고스타'){player.x+=dir*120;flash('인디고 순간이동!')}
+shots.push({x:player.x+player.w/2,y:player.y+22,vx:dir*(h.name==='썬더스타'?12:8),r:h.name==='블래이드스타'?16:8,life:80});
+}
+function jump(){
+if(state!=='play')return;let max=heroes[heroIndex].name==='에어스타'?2:1;
+if(player.jumps<max){player.vy=-11.5;player.jumps++;player.onGround=false}
+}
+function switchHero(){if(state!=='play')return;heroIndex=(heroIndex+1)%heroes.length;updateHUD();flash(`${heroes[heroIndex].name} 출동!`)}
+function bind(id,down,up){let el=document.getElementById(id);['touchstart','mousedown'].forEach(e=>el.addEventListener(e,x=>{x.preventDefault();down()}));['touchend','mouseup','mouseleave'].forEach(e=>el.addEventListener(e,x=>{x.preventDefault();up&&up()}))}
+bind('left',()=>keys.left=true,()=>keys.left=false);bind('right',()=>keys.right=true,()=>keys.right=false);bind('jump',jump);bind('attack',attack);bind('switch',switchHero);
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft')keys.left=true;if(e.key==='ArrowRight')keys.right=true;if(e.key===' '||e.key==='ArrowUp')jump();if(e.key==='z')attack();if(e.key==='x')switchHero()});
+addEventListener('keyup',e=>{if(e.key==='ArrowLeft')keys.left=false;if(e.key==='ArrowRight')keys.right=false});
+function rects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function hurt(){if(player.inv>0)return;lives--;player.inv=90;player.x=Math.max(40,player.x-100);player.y=180;updateHUD();if(lives<=0)gameOver()}
+function gameOver(){state='over';overlay.style.display='flex';card.innerHTML=`<h1>임무 실패!</h1><p>스타가디언즈는 다시 일어선다!</p><button class="mainBtn" onclick="lives=5;startStage()">다시 도전</button>`}
+function stageClear(){
+state='clear';overlay.style.display='flex';
+if(stageIndex===stages.length-1){card.innerHTML=`<h1>🌟 우주 평화 회복!</h1><div class="story">9명의 스타가디언즈가 힘을 합쳐\n다크 코어 제왕을 물리쳤다!\n\n하지만 저 멀리 새로운 별이 깜빡였다…\n“다음 이야기에서 계속!”</div><button class="mainBtn" onclick="showTitle()">처음부터</button>`}
+else{card.innerHTML=`<h1>CHAPTER ${stageIndex+1} 완료!</h1><p>${stages[stageIndex].boss} 격파!</p><button class="mainBtn" onclick="stageIndex++;startStage()">다음 스테이지 ▶</button>`}
+}
+function update(){
+if(state!=='play')return;
+let speed=heroes[heroIndex].name==='썬더스타'?6:4.4;
+player.vx=(keys.left?-speed:0)+(keys.right?speed:0);player.x+=player.vx;player.vy+=0.55;player.y+=player.vy;player.onGround=false;
+for(const p of platforms){if(player.vy>=0&&rects(player,{x:p.x,y:p.y-4,w:p.w,h:p.h+4})&&player.y+player.h-p.y<18){player.y=p.y-player.h;player.vy=0;player.onGround=true;player.jumps=0}}
+if(player.y>innerHeight+160)hurt();if(player.inv>0)player.inv--;
+for(const core of cores)if(!core.taken&&rects(player,{x:core.x-12,y:core.y-12,w:24,h:24})){core.taken=true;score++;updateHUD();flash('스타코어 획득!')}
+for(const e of enemies){if(e.hp<=0)continue;if(e.freeze>0)e.freeze--;else e.x+=e.vx;if(rects(player,e))hurt()}
+for(const s of shots){s.x+=s.vx;s.life--;for(const e of enemies){if(e.hp>0&&rects({x:s.x-s.r,y:s.y-s.r,w:s.r*2,h:s.r*2},e)){e.hp--;s.life=0;if(heroes[heroIndex].name==='아이스스타')e.freeze=180}}}
+shots=shots.filter(s=>s.life>0);
+let endX=platforms[platforms.length-1].x+100;
+if(score>=stages[stageIndex].goal&&player.x>endX-260){
+let boss={x:endX-120,y:260,w:90,h:100};
+for(const s of shots)if(rects({x:s.x-s.r,y:s.y-s.r,w:s.r*2,h:s.r*2},boss)){bossHP--;s.life=0;flash(`보스 체력 ${Math.max(0,bossHP)}`)}
+if(rects(player,boss))hurt();if(bossHP<=0)stageClear()
+}
+cameraX=Math.max(0,player.x-innerWidth*0.35);
+}
+function drawStar(x,y,r,color){ctx.save();ctx.translate(x,y);ctx.fillStyle=color;ctx.beginPath();for(let i=0;i<10;i++){let a=-Math.PI/2+i*Math.PI/5,rr=i%2? r*.45:r;ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr)}ctx.closePath();ctx.fill();ctx.restore()}
+function draw(){
+let st=stages[Math.min(stageIndex,stages.length-1)],g=ctx.createLinearGradient(0,0,0,innerHeight);g.addColorStop(0,st.theme[0]);g.addColorStop(1,st.theme[1]);ctx.fillStyle=g;ctx.fillRect(0,0,innerWidth,innerHeight);
+for(let i=0;i<70;i++){let x=(i*97-cameraX*.12)%innerWidth,y=(i*53)%innerHeight*.72;ctx.fillStyle='#fff8';ctx.fillRect(x,y,2,2)}
+ctx.save();ctx.translate(-cameraX,0);
+for(const p of platforms){ctx.fillStyle='#334c70';ctx.fillRect(p.x,p.y,p.w,p.h);ctx.fillStyle='#80eaff';ctx.fillRect(p.x,p.y,p.w,5)}
+for(const core of cores)if(!core.taken)drawStar(core.x,core.y,14,'#ffe65a');
+for(const e of enemies)if(e.hp>0){ctx.fillStyle=e.freeze?'#9eeaff':'#391046';ctx.fillRect(e.x,e.y,e.w,e.h);ctx.fillStyle='#ff4040';ctx.fillRect(e.x+6,e.y+10,7,7);ctx.fillRect(e.x+23,e.y+10,7,7)}
+for(const s of shots){ctx.fillStyle=heroes[heroIndex].color;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill()}
+let endX=platforms.length?platforms[platforms.length-1].x+100:99999;
+if(score>=st.goal&&player.x>endX-500){ctx.fillStyle='#170018';ctx.fillRect(endX-120,260,90,100);ctx.fillStyle='#f33';ctx.fillRect(endX-105,280,18,12);ctx.fillRect(endX-65,280,18,12);ctx.fillStyle='#fff';ctx.font='bold 16px sans-serif';ctx.fillText(st.boss,endX-150,245)}
+if(!(player.inv>0&&Math.floor(player.inv/6)%2)){ctx.fillStyle=heroes[heroIndex].color;ctx.fillRect(player.x,player.y,player.w,player.h);ctx.fillStyle='#fff';ctx.fillRect(player.x+8,player.y+10,7,7);ctx.fillRect(player.x+23,player.y+10,7,7);drawStar(player.x+player.w/2,player.y+35,8,'#fff')}
+ctx.restore();
+}
+function loop(t){let dt=t-last;last=t;update();draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);showTitle();
+</script>
+</body>
+</html>
